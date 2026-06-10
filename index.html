@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fallas de Luminarias de ALUMBRADO IMC</title>
+<title>Fallas de Luminarias de ALUMBRADO IMC - Login</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -48,155 +48,314 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   }
   .logo-svg { width: 50px; height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+  
+  /* Login Styles */
+  #loginOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-box {
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    max-width: 450px;
+    width: 90%;
+  }
+  .login-input {
+    background: rgba(15, 23, 42, 0.8);
+    border: 2px solid rgba(148, 163, 184, 0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  .login-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  .login-input::placeholder {
+    color: #64748b;
+  }
+  .error-message {
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+  }
+  .shake {
+    animation: shake 0.5s;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
 </style>
 </head>
 <body class="h-screen flex flex-col">
 
-<!-- Header -->
-<header class="glass border-b border-slate-700/50 px-6 py-4 flex items-center justify-between z-20 relative">
-  <div class="logo-container">
-    <div class="logo-wrapper">
-      <svg class="logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="60" cy="30" r="22" fill="url(#sunGrad)"/>
-        <path d="M55 35 C30 20, 10 45, 20 75 C28 95, 45 100, 55 80 C60 65, 58 50, 55 35Z" fill="url(#greenGrad)"/>
-        <path d="M65 35 C90 20, 110 45, 100 75 C92 95, 75 100, 65 80 C60 65, 62 50, 65 35Z" fill="url(#blueGrad)"/>
-        <defs>
-          <radialGradient id="sunGrad" cx="45%" cy="40%">
-            <stop offset="0%" stop-color="#FFD700"/>
-            <stop offset="60%" stop-color="#FFA500"/>
-            <stop offset="100%" stop-color="#FF8C00"/>
-          </radialGradient>
-          <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#6B8E23"/>
-            <stop offset="100%" stop-color="#4A7A1A"/>
-          </linearGradient>
-          <linearGradient id="blueGrad" x1="100%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#1DA1F2"/>
-            <stop offset="100%" stop-color="#0D7BC4"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-    <div>
-      <h1 class="text-xl font-bold text-white drop-shadow-lg">Fallas de Luminarias de ALUMBRADO IMC</h1>
-      <p class="text-xs text-slate-300 mt-1 drop-shadow">Reporte por zonas y localidades</p>
-    </div>
-  </div>
-  <div class="flex items-center gap-3">
-    <div id="fileInfo" class="text-xs text-slate-300 hidden">
-      <span class="text-slate-400">Planilla:</span>
-      <span id="fileName" class="text-blue-300 font-medium"></span>
-      <span id="fileCount" class="text-slate-400 ml-2"></span>
-    </div>
-    <button onclick="document.getElementById('fileInput').click()" class="btn-primary px-5 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-      Agregar Planilla
-    </button>
-    <input type="file" id="fileInput" accept=".csv" class="hidden" onchange="handleFile(event)">
-  </div>
-</header>
-
-<!-- Main Content -->
-<div class="flex-1 flex overflow-hidden relative">
-
-  <!-- Left Panel -->
-  <aside class="w-96 glass border-r border-slate-700/50 flex flex-col relative z-10">
-    <div class="p-4 border-b border-slate-700/50">
-      <div class="grid grid-cols-2 gap-2 mb-3">
-        <div class="stat-card rounded-lg p-3">
-          <div class="text-xs text-slate-300 mb-1">Total Fallas</div>
-          <div class="text-2xl font-bold text-white" id="statTotal">0</div>
-        </div>
-        <div class="stat-card info rounded-lg p-3">
-          <div class="text-xs text-slate-300 mb-1">Localidades</div>
-          <div class="text-2xl font-bold text-white" id="statLocalidades">0</div>
-        </div>
-        <div class="stat-card danger rounded-lg p-3">
-          <div class="text-xs text-slate-300 mb-1">Sin Energía</div>
-          <div class="text-2xl font-bold text-white" id="statNoEnergy">0</div>
-        </div>
-        <div class="stat-card warning rounded-lg p-3">
-          <div class="text-xs text-slate-300 mb-1">OLC Inaccesible</div>
-          <div class="text-2xl font-bold text-white" id="statOLC">0</div>
-        </div>
+<!-- Login Overlay -->
+<div id="loginOverlay">
+  <div class="login-box fade-in">
+    <div class="text-center mb-8">
+      <div class="logo-wrapper mx-auto mb-4" style="width: 80px; height: 80px;">
+        <svg class="logo-svg" style="width: 60px; height: 60px;" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="30" r="22" fill="url(#sunGrad)"/>
+          <path d="M55 35 C30 20, 10 45, 20 75 C28 95, 45 100, 55 80 C60 65, 58 50, 55 35Z" fill="url(#greenGrad)"/>
+          <path d="M65 35 C90 20, 110 45, 100 75 C92 95, 75 100, 65 80 C60 65, 62 50, 65 35Z" fill="url(#blueGrad)"/>
+          <defs>
+            <radialGradient id="sunGrad" cx="45%" cy="40%">
+              <stop offset="0%" stop-color="#FFD700"/>
+              <stop offset="60%" stop-color="#FFA500"/>
+              <stop offset="100%" stop-color="#FF8C00"/>
+            </radialGradient>
+            <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6B8E23"/>
+              <stop offset="100%" stop-color="#4A7A1A"/>
+            </linearGradient>
+            <linearGradient id="blueGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#1DA1F2"/>
+              <stop offset="100%" stop-color="#0D7BC4"/>
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
+      <h1 class="text-2xl font-bold text-white mb-2">ALUMBRADO IMC</h1>
+      <p class="text-slate-400 text-sm">Sistema de Gestión de Fallas</p>
     </div>
-
-    <div class="p-4 border-b border-slate-700/50 space-y-3">
-      <div>
-        <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Buscar</label>
-        <input type="text" id="searchInput" placeholder="Asset ID, External ID..." 
-          class="w-full mt-1 bg-slate-800/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-500">
-      </div>
-      <div class="grid grid-cols-2 gap-2">
+    
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="space-y-4">
         <div>
-          <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Localidad</label>
-          <select id="localidadFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-            <option value="all">Todas</option>
-          </select>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Usuario</label>
+          <input type="text" id="username" class="login-input w-full" placeholder="Ingrese su usuario" autocomplete="username" required>
         </div>
         <div>
-          <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Zona</label>
-          <select id="zonaFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-            <option value="all">Todas</option>
-          </select>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña</label>
+          <input type="password" id="password" class="login-input w-full" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
         </div>
+        <div id="errorMessage" class="error-message">
+          ⚠️ Usuario o contraseña incorrectos
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">
+          🔐 Ingresar al Sistema
+        </button>
+      </div>
+    </form>
+    
+    <div class="mt-6 text-center text-xs text-slate-500">
+      <p>Usuario: <strong class="text-slate-400">admin</strong> | Contraseña: <strong class="text-slate-400">admin123</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content (Hidden until login) -->
+<div id="mainContent" class="hidden h-screen flex flex-col">
+  <!-- Header -->
+  <header class="glass border-b border-slate-700/50 px-6 py-4 flex items-center justify-between z-20 relative">
+    <div class="logo-container">
+      <div class="logo-wrapper">
+        <svg class="logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="30" r="22" fill="url(#sunGrad)"/>
+          <path d="M55 35 C30 20, 10 45, 20 75 C28 95, 45 100, 55 80 C60 65, 58 50, 55 35Z" fill="url(#greenGrad)"/>
+          <path d="M65 35 C90 20, 110 45, 100 75 C92 95, 75 100, 65 80 C60 65, 62 50, 65 35Z" fill="url(#blueGrad)"/>
+          <defs>
+            <radialGradient id="sunGrad" cx="45%" cy="40%">
+              <stop offset="0%" stop-color="#FFD700"/>
+              <stop offset="60%" stop-color="#FFA500"/>
+              <stop offset="100%" stop-color="#FF8C00"/>
+            </radialGradient>
+            <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6B8E23"/>
+              <stop offset="100%" stop-color="#4A7A1A"/>
+            </linearGradient>
+            <linearGradient id="blueGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#1DA1F2"/>
+              <stop offset="100%" stop-color="#0D7BC4"/>
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
       <div>
-        <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Tipo de Falla</label>
-        <select id="errorFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-          <option value="all">Todas</option>
-        </select>
+        <h1 class="text-xl font-bold text-white">Fallas de Luminarias de ALUMBRADO IMC</h1>
+        <p class="text-xs text-slate-400 mt-1">Reporte por zonas y localidades</p>
       </div>
     </div>
-
-    <div class="flex-1 scroll-y p-3 space-y-2" id="errorList">
-      <div class="text-center text-slate-400 mt-10 p-4">
-        <div class="text-4xl mb-2">📋</div>
-        <p class="text-sm">Cargá una planilla CSV para ver las fallas</p>
+    <div class="flex items-center gap-3">
+      <div id="fileInfo" class="text-xs text-slate-400 hidden">
+        <span class="text-slate-500">Planilla:</span>
+        <span id="fileName" class="text-blue-400 font-medium"></span>
+        <span id="fileCount" class="text-slate-500 ml-2"></span>
       </div>
-    </div>
-  </aside>
-
-  <!-- Map -->
-  <main class="flex-1 relative">
-    <div id="map"></div>
-    <div class="legend-box glass rounded-lg p-4 shadow-2xl">
-      <div class="text-xs font-bold text-white mb-3 flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-        Leyenda de Fallas
-      </div>
-      <div class="space-y-2 text-xs">
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30"></span><span class="text-slate-200">Sin energía</span></div>
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30"></span><span class="text-slate-200">OLC inaccesible</span></div>
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-yellow-500 shadow-lg shadow-yellow-500/30"></span><span class="text-slate-200">GPS roto</span></div>
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/30"></span><span class="text-slate-200">Voltaje/Corriente</span></div>
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-pink-500 shadow-lg shadow-pink-500/30"></span><span class="text-slate-200">Driver/Relé</span></div>
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/30"></span><span class="text-slate-200">Puesta en servicio</span></div>
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30"></span><span class="text-slate-200">Configuración</span></div>
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30"></span><span class="text-slate-200">Ubicación cambiada</span></div>
-        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-slate-400 shadow-lg shadow-slate-400/30"></span><span class="text-slate-200">Otros</span></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- Right Panel -->
-  <aside id="detailPanel" class="w-96 glass border-l border-slate-700/50 flex flex-col hidden relative z-10">
-    <div class="p-4 border-b border-slate-700/50 flex items-center justify-between">
-      <h2 class="font-bold text-white flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-blue-500 pulse-dot"></span>
-        Detalle del Asset
-      </h2>
-      <button onclick="closeDetailPanel()" class="text-slate-400 hover:text-white transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">
+        🚪 Cerrar Sesión
       </button>
+      <button onclick="document.getElementById('fileInput').click()" class="btn-primary px-5 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Agregar Planilla
+      </button>
+      <input type="file" id="fileInput" accept=".csv" class="hidden" onchange="handleFile(event)">
     </div>
-    <div class="flex-1 scroll-y p-4 space-y-4" id="detailContent"></div>
-  </aside>
+  </header>
 
+  <!-- Main Content -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- Left Panel -->
+    <aside class="w-96 glass border-r border-slate-700/50 flex flex-col relative z-10">
+      <div class="p-4 border-b border-slate-700/50">
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div class="stat-card rounded-lg p-3">
+            <div class="text-xs text-slate-400 mb-1">Total Fallas</div>
+            <div class="text-2xl font-bold text-white" id="statTotal">0</div>
+          </div>
+          <div class="stat-card info rounded-lg p-3">
+            <div class="text-xs text-slate-400 mb-1">Localidades</div>
+            <div class="text-2xl font-bold text-white" id="statLocalidades">0</div>
+          </div>
+          <div class="stat-card danger rounded-lg p-3">
+            <div class="text-xs text-slate-400 mb-1">Sin Energía</div>
+            <div class="text-2xl font-bold text-white" id="statNoEnergy">0</div>
+          </div>
+          <div class="stat-card warning rounded-lg p-3">
+            <div class="text-xs text-slate-400 mb-1">OLC Inaccesible</div>
+            <div class="text-2xl font-bold text-white" id="statOLC">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-b border-slate-700/50 space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Buscar</label>
+          <input type="text" id="searchInput" placeholder="Asset ID, External ID..." 
+            class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Localidad</label>
+            <select id="localidadFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              <option value="all">Todas</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Zona</label>
+            <select id="zonaFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              <option value="all">Todas</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipo de Falla</label>
+          <select id="errorFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            <option value="all">Todas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex-1 scroll-y p-3 space-y-2" id="errorList">
+        <div class="text-center text-slate-500 mt-10 p-4">
+          <div class="text-4xl mb-2">📋</div>
+          <p class="text-sm">Cargá una planilla CSV para ver las fallas</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Map -->
+    <main class="flex-1 relative">
+      <div id="map"></div>
+      <div class="legend-box glass rounded-lg p-4 shadow-2xl">
+        <div class="text-xs font-bold text-white mb-3 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          Leyenda de Fallas
+        </div>
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30"></span><span class="text-slate-200">Sin energía</span></div>
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30"></span><span class="text-slate-200">OLC inaccesible</span></div>
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-yellow-500 shadow-lg shadow-yellow-500/30"></span><span class="text-slate-200">GPS roto</span></div>
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/30"></span><span class="text-slate-200">Voltaje/Corriente</span></div>
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-pink-500 shadow-lg shadow-pink-500/30"></span><span class="text-slate-200">Driver/Relé</span></div>
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/30"></span><span class="text-slate-200">Puesta en servicio</span></div>
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30"></span><span class="text-slate-200">Configuración</span></div>
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30"></span><span class="text-slate-200">Ubicación cambiada</span></div>
+          <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-slate-400 shadow-lg shadow-slate-400/30"></span><span class="text-slate-200">Otros</span></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Panel -->
+    <aside id="detailPanel" class="w-96 glass border-l border-slate-700/50 flex flex-col hidden relative z-10">
+      <div class="p-4 border-b border-slate-700/50 flex items-center justify-between">
+        <h2 class="font-bold text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-blue-500 pulse-dot"></span>
+          Detalle del Asset
+        </h2>
+        <button onclick="closeDetailPanel()" class="text-slate-400 hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="flex-1 scroll-y p-4 space-y-4" id="detailContent"></div>
+    </aside>
+
+  </div>
 </div>
 
 <script>
+// Login System
+const VALID_USERNAME = 'admin';
+const VALID_PASSWORD = 'admin123';
+
+function handleLogin(event) {
+  event.preventDefault();
+  
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const errorMessage = document.getElementById('errorMessage');
+  const loginBox = document.querySelector('.login-box');
+  
+  if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+    // Login successful
+    sessionStorage.setItem('isLoggedIn', 'true');
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('mainContent').classList.remove('hidden');
+    initMap();
+  } else {
+    // Login failed
+    errorMessage.style.display = 'block';
+    loginBox.classList.add('shake');
+    setTimeout(() => {
+      loginBox.classList.remove('shake');
+    }, 500);
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('isLoggedIn');
+  location.reload();
+}
+
+// Check if already logged in
+window.onload = function() {
+  if (sessionStorage.getItem('isLoggedIn') === 'true') {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('mainContent').classList.remove('hidden');
+    initMap();
+  }
+};
+
+// Rest of the existing code...
 let allData = [];
 let filteredData = [];
 let map, markers = [];
@@ -221,7 +380,6 @@ function categorizeError(msg, estado) {
 
 function cleanZona(zonaRaw) {
   if (!zonaRaw) return 'DESAFECTADOS';
-  // Remove "Streetlight/Zona" and clean up
   let cleaned = zonaRaw.trim();
   cleaned = cleaned.replace(/Streetlight\/Zona/gi, '').trim();
   cleaned = cleaned.replace(/Zona\s*/gi, '').trim();
@@ -235,16 +393,12 @@ function cleanZona(zonaRaw) {
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   const result = [];
-  
-  // Check if it's the new format (REPORTE_LUMINARIAS.csv)
   const firstLine = lines[0].toLowerCase();
   const isNewFormat = firstLine.includes('created') && firstLine.includes('inconsistent');
   
   if (isNewFormat) {
-    // New format: Created,AssetID,MensajeDeError,Estado,FechaCreacion,FechaModificacion,ExternalID,Latitud,Longitud,FechaProgramada,Localidad,Zona
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
-      
       const row = [];
       let inQuotes = false, current = '';
       for (const char of lines[i]) {
@@ -253,9 +407,7 @@ function parseCSV(text) {
         else current += char;
       }
       row.push(current.trim());
-      
       if (row.length < 12) continue;
-      
       const obj = {
         'Created': row[0],
         'Asset ID': row[1],
@@ -270,17 +422,14 @@ function parseCSV(text) {
         'Localidad': row[10],
         'Zona': row[11]
       };
-      
       obj.lat = parseFloat(obj.Latitud);
       obj.lng = parseFloat(obj.Longitud);
       obj.categoria = categorizeError(obj['Mensaje de error'], obj['Estado']);
       obj.zona = cleanZona(obj.Zona);
       obj.localidad = obj.Localidad || 'Sin Localidad';
-      
       result.push(obj);
     }
   } else {
-    // Old format
     for (let i = 0; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
       const row = [];
@@ -516,8 +665,6 @@ document.getElementById('searchInput').addEventListener('input', applyFilters);
 document.getElementById('localidadFilter').addEventListener('change', applyFilters);
 document.getElementById('zonaFilter').addEventListener('change', applyFilters);
 document.getElementById('errorFilter').addEventListener('change', applyFilters);
-
-window.onload = function() { initMap(); };
 </script>
 </body>
 </html>
