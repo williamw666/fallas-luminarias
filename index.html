@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; overflow: hidden; }
   #map { height: 100%; width: 100%; position: relative; z-index: 0; }
@@ -24,8 +23,9 @@
   .btn-primary:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); }
   .btn-admin { background: linear-gradient(135deg, #10b981 0%, #059669 100%); transition: all 0.3s; }
   .btn-admin:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); }
-  .btn-pdf { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); transition: all 0.3s; }
-  .btn-pdf:hover { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); }
+  /* Botón PDF en color ámbar/dorado (diferente al rojo de Salir) */
+  .btn-pdf { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); transition: all 0.3s; }
+  .btn-pdf:hover { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
   .zone-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
   .error-item { transition: all 0.2s; cursor: pointer; }
   .error-item:hover { background: rgba(59, 130, 246, 0.15); transform: translateX(4px); }
@@ -69,34 +69,6 @@
     background: rgba(30, 41, 59, 0.98); border: 2px solid rgba(16, 185, 129, 0.3);
     border-radius: 16px; padding: 32px; max-width: 650px; width: 90%; max-height: 80vh; overflow-y: auto;
   }
-
-  /* PDF Export Styles */
-  #pdfExportArea {
-    display: none;
-    background: white;
-    color: #1e293b;
-    padding: 40px;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-  }
-  #pdfExportArea.visible {
-    display: block;
-    position: fixed;
-    top: -9999px;
-    left: -9999px;
-    width: 1200px;
-  }
-  .pdf-header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #3b82f6; padding-bottom: 20px; }
-  .pdf-header h1 { color: #1e293b; font-size: 28px; margin-bottom: 8px; }
-  .pdf-header p { color: #64748b; font-size: 14px; }
-  .pdf-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 30px; }
-  .pdf-stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: center; }
-  .pdf-stat-card .value { font-size: 32px; font-weight: bold; color: #1e293b; }
-  .pdf-stat-card .label { font-size: 12px; color: #64748b; text-transform: uppercase; }
-  .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .pdf-table th { background: #1e293b; color: white; padding: 10px 8px; text-align: left; font-weight: 600; }
-  .pdf-table td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
-  .pdf-table tr:nth-child(even) { background: #f8fafc; }
-  .pdf-footer { margin-top: 30px; text-align: center; color: #94a3b8; font-size: 11px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
 </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -171,7 +143,7 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         Exportar PDF
       </button>
-      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">🚪 Salir</button>
+      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2"> Salir</button>
       <button onclick="document.getElementById('fileInput').click()" class="btn-primary px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Agregar Planilla
@@ -231,60 +203,8 @@
   </div>
 </div>
 
-<!-- PDF Export Area (Hidden) -->
-<div id="pdfExportArea">
-  <div class="pdf-header">
-    <h1>⚡ Fallas de Luminarias - ALUMBRADO IMC</h1>
-    <p>Reporte generado el <span id="pdfDate"></span> | Usuario: <span id="pdfUser"></span></p>
-    <p id="pdfFilters" style="margin-top: 8px; font-size: 12px; color: #64748b;"></p>
-  </div>
-  
-  <div class="pdf-stats">
-    <div class="pdf-stat-card">
-      <div class="value" id="pdfStatTotal">0</div>
-      <div class="label">Total Fallas</div>
-    </div>
-    <div class="pdf-stat-card">
-      <div class="value" id="pdfStatLocalidades">0</div>
-      <div class="label">Localidades</div>
-    </div>
-    <div class="pdf-stat-card">
-      <div class="value" id="pdfStatNoEnergy">0</div>
-      <div class="label">Sin Energía</div>
-    </div>
-    <div class="pdf-stat-card">
-      <div class="value" id="pdfStatOLC">0</div>
-      <div class="label">OLC Inaccesible</div>
-    </div>
-  </div>
-
-  <h2 style="font-size: 18px; color: #1e293b; margin-bottom: 12px; border-left: 4px solid #3b82f6; padding-left: 12px;">Detalle de Fallas</h2>
-  
-  <table class="pdf-table" id="pdfTable">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Asset ID</th>
-        <th>External ID</th>
-        <th>Localidad</th>
-        <th>Zona</th>
-        <th>Tipo de Falla</th>
-        <th>Mensaje de Error</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody id="pdfTableBody">
-    </tbody>
-  </table>
-
-  <div class="pdf-footer">
-    <p>ALUMBRADO IMC - Sistema de Gestión de Fallas de Luminarias</p>
-    <p>Documento generado automáticamente | Total de registros: <span id="pdfTotalRecords">0</span></p>
-  </div>
-</div>
-
 <script>
-// ================= USER MANAGEMENT SYSTEM =================
+// ================= USER MANAGEMENT =================
 let users = [];
 let currentLoggedInUser = null;
 let currentUserRole = null;
@@ -349,7 +269,7 @@ function renderUserList() {
 
 function handleResetPassword(username) {
   if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; }
-  const newPass = prompt(`🔐 Admin: Ingrese la nueva contraseña para "${username}":`);
+  const newPass = prompt(` Admin: Ingrese la nueva contraseña para "${username}":`);
   if (newPass && newPass.trim() !== '') {
     const user = users.find(u => u.username === username);
     if (user) { user.password = newPass.trim(); saveUsersToStorage(); alert(`✅ Clave de "${username}" restablecida.`); renderUserList(); }
@@ -388,7 +308,7 @@ function handleAddUser() {
   alert(`✅ Usuario "${username}" agregado.`);
 }
 
-function openAdminModal() { if (currentUserRole !== 'admin') { alert('️ Solo administradores.'); return; } renderUserList(); document.getElementById('adminModal').classList.remove('hidden'); }
+function openAdminModal() { if (currentUserRole !== 'admin') { alert('⚠️ Solo administradores.'); return; } renderUserList(); document.getElementById('adminModal').classList.remove('hidden'); }
 function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
 
 // ================= PDF EXPORT =================
@@ -404,51 +324,7 @@ async function exportToPDF() {
   btn.disabled = true;
 
   try {
-    // Fill PDF area
     const now = new Date();
-    document.getElementById('pdfDate').textContent = now.toLocaleDateString('es-UY') + ' ' + now.toLocaleTimeString('es-UY');
-    document.getElementById('pdfUser').textContent = currentLoggedInUser || 'admin';
-    
-    // Filters info
-    const filters = [];
-    const locFilter = document.getElementById('localidadFilter').value;
-    const zonaFilter = document.getElementById('zonaFilter').value;
-    const errorFilter = document.getElementById('errorFilter').value;
-    if (locFilter !== 'all') filters.push(`Localidad: ${locFilter}`);
-    if (zonaFilter !== 'all') filters.push(`Zona: ${zonaFilter}`);
-    if (errorFilter !== 'all') filters.push(`Tipo: ${errorFilter}`);
-    document.getElementById('pdfFilters').textContent = filters.length > 0 ? `Filtros aplicados: ${filters.join(' | ')}` : 'Sin filtros aplicados (todos los registros)';
-
-    // Stats
-    document.getElementById('pdfStatTotal').textContent = filteredData.length;
-    document.getElementById('pdfStatLocalidades').textContent = new Set(filteredData.map(d => d.localidad)).size;
-    document.getElementById('pdfStatNoEnergy').textContent = filteredData.filter(d => d.categoria.name === 'Sin energía').length;
-    document.getElementById('pdfStatOLC').textContent = filteredData.filter(d => d.categoria.name === 'OLC inaccesible').length;
-    document.getElementById('pdfTotalRecords').textContent = filteredData.length;
-
-    // Table
-    const tbody = document.getElementById('pdfTableBody');
-    tbody.innerHTML = filteredData.map((row, idx) => `
-      <tr>
-        <td>${idx + 1}</td>
-        <td style="font-family: monospace; font-size: 11px;">${row['Asset ID']}</td>
-        <td style="font-family: monospace; font-size: 11px;">${row['External ID']}</td>
-        <td>${row.localidad}</td>
-        <td>${row.zona}</td>
-        <td><span style="color: ${row.categoria.color}; font-weight: 600;">${row.categoria.icon} ${row.categoria.name}</span></td>
-        <td style="font-size: 11px;">${row['Mensaje de error']}</td>
-        <td style="font-size: 11px;">${row['Fecha creación'] || '-'}</td>
-      </tr>
-    `).join('');
-
-    // Show PDF area
-    const pdfArea = document.getElementById('pdfExportArea');
-    pdfArea.classList.add('visible');
-
-    // Wait for render
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Generate PDF with jsPDF
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('landscape', 'mm', 'a4');
     
@@ -463,10 +339,10 @@ async function exportToPDF() {
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(18);
     pdf.setFont(undefined, 'bold');
-    pdf.text('⚡ Fallas de Luminarias - ALUMBRADO IMC', margin, 12);
+    pdf.text('Fallas de Luminarias - ALUMBRADO IMC', margin, 12);
     pdf.setFontSize(9);
     pdf.setFont(undefined, 'normal');
-    pdf.text(`Reporte generado: ${now.toLocaleDateString('es-UY')} ${now.toLocaleTimeString('es-UY')} | Usuario: ${currentLoggedInUser || 'admin'}`, margin, 20);
+    pdf.text(`Reporte: ${now.toLocaleDateString('es-UY')} ${now.toLocaleTimeString('es-UY')} | Usuario: ${currentLoggedInUser || 'admin'}`, margin, 20);
 
     yPosition = 35;
 
@@ -494,7 +370,14 @@ async function exportToPDF() {
 
     yPosition += 30;
 
-    // Filters
+    // Filters info
+    const filters = [];
+    const locFilter = document.getElementById('localidadFilter').value;
+    const zonaFilter = document.getElementById('zonaFilter').value;
+    const errorFilter = document.getElementById('errorFilter').value;
+    if (locFilter !== 'all') filters.push(`Localidad: ${locFilter}`);
+    if (zonaFilter !== 'all') filters.push(`Zona: ${zonaFilter}`);
+    if (errorFilter !== 'all') filters.push(`Tipo: ${errorFilter}`);
     if (filters.length > 0) {
       pdf.setTextColor(100, 116, 139);
       pdf.setFontSize(8);
@@ -529,27 +412,23 @@ async function exportToPDF() {
 
     filteredData.forEach((row, idx) => {
       if (rowCount >= maxRowsPerPage) {
-        // Footer
         pdf.setTextColor(148, 163, 184);
         pdf.setFontSize(7);
-        pdf.text(`Página ${currentPage} | ALUMBRADO IMC - Sistema de Gestión de Fallas`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+        pdf.text(`Página ${currentPage} | ALUMBRADO IMC`, pageWidth / 2, pageHeight - 8, { align: 'center' });
         
-        // New page
         pdf.addPage();
         currentPage++;
         yPosition = margin;
         rowCount = 0;
 
-        // Re-add header on new page
         pdf.setFillColor(30, 41, 59);
         pdf.rect(0, 0, pageWidth, 15, 'F');
         pdf.setTextColor(255, 255, 255);
         pdf.setFontSize(10);
         pdf.setFont(undefined, 'bold');
-        pdf.text('⚡ Fallas de Luminarias - ALUMBRADO IMC', margin, 10);
+        pdf.text('Fallas de Luminarias - ALUMBRADO IMC', margin, 10);
         yPosition = 22;
 
-        // Table header again
         pdf.setFillColor(30, 41, 59);
         pdf.rect(margin, yPosition, pageWidth - margin * 2, 8, 'F');
         pdf.setTextColor(255, 255, 255);
@@ -565,13 +444,11 @@ async function exportToPDF() {
         pdf.setFontSize(6.5);
       }
 
-      // Alternate row colors
       if (idx % 2 === 0) {
         pdf.setFillColor(248, 250, 252);
         pdf.rect(margin, yPosition, pageWidth - margin * 2, 6, 'F');
       }
 
-      // Color for error type
       const colorMap = {
         'Sin energía': [239, 68, 68],
         'OLC inaccesible': [249, 115, 22],
@@ -613,12 +490,10 @@ async function exportToPDF() {
       rowCount++;
     });
 
-    // Final footer
     pdf.setTextColor(148, 163, 184);
     pdf.setFontSize(7);
     pdf.text(`Página ${currentPage} | Total: ${filteredData.length} registros | ALUMBRADO IMC`, pageWidth / 2, pageHeight - 8, { align: 'center' });
 
-    // Save
     const fileName = `Fallas_Luminarias_IMC_${now.toISOString().split('T')[0]}.pdf`;
     pdf.save(fileName);
 
@@ -628,7 +503,6 @@ async function exportToPDF() {
   } finally {
     btn.innerHTML = originalText;
     btn.disabled = false;
-    document.getElementById('pdfExportArea').classList.remove('visible');
   }
 }
 
