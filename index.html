@@ -36,83 +36,34 @@
   .leaflet-control-attribution { z-index: 998 !important; }
   .leaflet-top, .leaflet-bottom { z-index: 998 !important; }
   
-  /* Login Styles */
   #loginOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    z-index: 99999; display: flex; align-items: center; justify-content: center;
   }
   .login-box {
-    background: rgba(30, 41, 59, 0.95);
-    backdrop-filter: blur(20px);
-    border: 2px solid rgba(59, 130, 246, 0.3);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    max-width: 420px;
-    width: 90%;
+    background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(20px);
+    border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 20px;
+    padding: 40px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    max-width: 420px; width: 90%;
   }
   .login-input {
-    background: rgba(15, 23, 42, 0.8);
-    border: 2px solid rgba(148, 163, 184, 0.2);
-    border-radius: 10px;
-    padding: 12px 16px;
-    color: white;
-    font-size: 16px;
-    transition: all 0.3s;
+    background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(148, 163, 184, 0.2);
+    border-radius: 10px; padding: 12px 16px; color: white; font-size: 16px; transition: all 0.3s;
   }
-  .login-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  }
-  .login-input::placeholder {
-    color: #64748b;
-  }
-  .error-message {
-    color: #ef4444;
-    font-size: 14px;
-    margin-top: 10px;
-    display: none;
-  }
-  .shake {
-    animation: shake 0.5s;
-  }
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-  }
+  .login-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+  .login-input::placeholder { color: #64748b; }
+  .error-message { color: #ef4444; font-size: 14px; margin-top: 10px; display: none; }
+  .shake { animation: shake 0.5s; }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
   
-  /* Modal Styles */
   .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 99998;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); z-index: 99998; display: flex; align-items: center; justify-content: center;
   }
   .modal-content {
-    background: rgba(30, 41, 59, 0.98);
-    border: 2px solid rgba(16, 185, 129, 0.3);
-    border-radius: 16px;
-    padding: 32px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
+    background: rgba(30, 41, 59, 0.98); border: 2px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px; padding: 32px; max-width: 650px; width: 90%; max-height: 80vh; overflow-y: auto;
   }
 </style>
 </head>
@@ -125,7 +76,6 @@
       <h1 class="text-2xl font-bold text-white mb-2">ALUMBRADO IMC</h1>
       <p class="text-slate-400 text-sm">Sistema de Gestión de Fallas</p>
     </div>
-    
     <form id="loginForm" onsubmit="handleLogin(event)">
       <div class="space-y-4">
         <div>
@@ -136,12 +86,8 @@
           <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña</label>
           <input type="password" id="password" class="login-input w-full" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
         </div>
-        <div id="errorMessage" class="error-message">
-          ⚠️ Usuario o contraseña incorrectos
-        </div>
-        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">
-          🔐 Ingresar al Sistema
-        </button>
+        <div id="errorMessage" class="error-message">️ Usuario o contraseña incorrectos</div>
+        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">🔐 Ingresar al Sistema</button>
       </div>
     </form>
   </div>
@@ -157,36 +103,25 @@
       </button>
     </div>
     
-    <div class="space-y-4">
-      <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
-        <div>
-          <div class="text-white font-semibold">admin</div>
-          <div class="text-xs text-slate-400">Administrador principal</div>
-        </div>
-        <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold">Activo</span>
-      </div>
-      
-      <div class="border-t border-slate-700 pt-4">
-        <h3 class="text-sm font-semibold text-slate-300 mb-3">Agregar Nuevo Usuario</h3>
-        <div class="space-y-3">
-          <input type="text" placeholder="Nombre de usuario" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-green-500">
-          <input type="password" placeholder="Contraseña" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-green-500">
-          <select class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-green-500">
-            <option value="user">Usuario</option>
-            <option value="admin">Administrador</option>
-          </select>
-          <button class="w-full btn-admin py-2 rounded-lg text-white font-semibold text-sm">
-            ➕ Agregar Usuario
-          </button>
-        </div>
+    <div id="userList" class="space-y-3 mb-6"></div>
+    
+    <div class="border-t border-slate-700 pt-4">
+      <h3 class="text-sm font-semibold text-slate-300 mb-3">Agregar Nuevo Usuario</h3>
+      <div class="space-y-3">
+        <input type="text" id="newUsername" placeholder="Nombre de usuario" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-green-500">
+        <input type="password" id="newPassword" placeholder="Contraseña inicial" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-green-500">
+        <select id="newRole" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-green-500">
+          <option value="user">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+        <button onclick="handleAddUser()" class="w-full btn-admin py-2 rounded-lg text-white font-semibold text-sm">➕ Agregar Usuario</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Main Content (Hidden until login) -->
+<!-- Main Content -->
 <div id="mainContent" class="hidden h-screen flex flex-col">
-  <!-- Header -->
   <header class="glass border-b border-slate-700/50 px-6 py-4 flex items-center justify-between z-20 relative">
     <div>
       <h1 class="text-xl font-bold text-white">Fallas de Luminarias de ALUMBRADO IMC</h1>
@@ -198,13 +133,11 @@
         <span id="fileName" class="text-blue-400 font-medium"></span>
         <span id="fileCount" class="text-slate-500 ml-2"></span>
       </div>
-      <button onclick="openAdminModal()" class="btn-admin px-5 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
+      <button id="adminBtn" onclick="openAdminModal()" class="btn-admin px-5 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
         Admin Usuarios
       </button>
-      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">
-        🚪 Cerrar Sesión
-      </button>
+      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">🚪 Cerrar Sesión</button>
       <button onclick="document.getElementById('fileInput').click()" class="btn-primary px-5 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Agregar Planilla
@@ -213,76 +146,33 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <div class="flex-1 flex overflow-hidden relative">
-
-    <!-- Left Panel -->
     <aside class="w-96 glass border-r border-slate-700/50 flex flex-col relative z-10">
       <div class="p-4 border-b border-slate-700/50">
         <div class="grid grid-cols-2 gap-2 mb-3">
-          <div class="stat-card rounded-lg p-3">
-            <div class="text-xs text-slate-400 mb-1">Total Fallas</div>
-            <div class="text-2xl font-bold text-white" id="statTotal">0</div>
-          </div>
-          <div class="stat-card info rounded-lg p-3">
-            <div class="text-xs text-slate-400 mb-1">Localidades</div>
-            <div class="text-2xl font-bold text-white" id="statLocalidades">0</div>
-          </div>
-          <div class="stat-card danger rounded-lg p-3">
-            <div class="text-xs text-slate-400 mb-1">Sin Energía</div>
-            <div class="text-2xl font-bold text-white" id="statNoEnergy">0</div>
-          </div>
-          <div class="stat-card warning rounded-lg p-3">
-            <div class="text-xs text-slate-400 mb-1">OLC Inaccesible</div>
-            <div class="text-2xl font-bold text-white" id="statOLC">0</div>
-          </div>
+          <div class="stat-card rounded-lg p-3"><div class="text-xs text-slate-400 mb-1">Total Fallas</div><div class="text-2xl font-bold text-white" id="statTotal">0</div></div>
+          <div class="stat-card info rounded-lg p-3"><div class="text-xs text-slate-400 mb-1">Localidades</div><div class="text-2xl font-bold text-white" id="statLocalidades">0</div></div>
+          <div class="stat-card danger rounded-lg p-3"><div class="text-xs text-slate-400 mb-1">Sin Energía</div><div class="text-2xl font-bold text-white" id="statNoEnergy">0</div></div>
+          <div class="stat-card warning rounded-lg p-3"><div class="text-xs text-slate-400 mb-1">OLC Inaccesible</div><div class="text-2xl font-bold text-white" id="statOLC">0</div></div>
         </div>
       </div>
-
       <div class="p-4 border-b border-slate-700/50 space-y-3">
-        <div>
-          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Buscar</label>
-          <input type="text" id="searchInput" placeholder="Asset ID, External ID..." 
-            class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
-        </div>
+        <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Buscar</label><input type="text" id="searchInput" placeholder="Asset ID, External ID..." class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"></div>
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Localidad</label>
-            <select id="localidadFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-              <option value="all">Todas</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Zona</label>
-            <select id="zonaFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-              <option value="all">Todas</option>
-            </select>
-          </div>
+          <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Localidad</label><select id="localidadFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"><option value="all">Todas</option></select></div>
+          <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Zona</label><select id="zonaFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"><option value="all">Todas</option></select></div>
         </div>
-        <div>
-          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipo de Falla</label>
-          <select id="errorFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-            <option value="all">Todas</option>
-          </select>
-        </div>
+        <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipo de Falla</label><select id="errorFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"><option value="all">Todas</option></select></div>
       </div>
-
       <div class="flex-1 scroll-y p-3 space-y-2" id="errorList">
-        <div class="text-center text-slate-500 mt-10 p-4">
-          <div class="text-4xl mb-2">📋</div>
-          <p class="text-sm">Cargá una planilla CSV para ver las fallas</p>
-        </div>
+        <div class="text-center text-slate-500 mt-10 p-4"><div class="text-4xl mb-2"></div><p class="text-sm">Cargá una planilla CSV para ver las fallas</p></div>
       </div>
     </aside>
 
-    <!-- Map -->
     <main class="flex-1 relative">
       <div id="map"></div>
       <div class="legend-box glass rounded-lg p-4 shadow-2xl">
-        <div class="text-xs font-bold text-white mb-3 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-          Leyenda de Fallas
-        </div>
+        <div class="text-xs font-bold text-white mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Leyenda de Fallas</div>
         <div class="space-y-2 text-xs">
           <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30"></span><span class="text-slate-200">Sin energía</span></div>
           <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30"></span><span class="text-slate-200">OLC inaccesible</span></div>
@@ -297,54 +187,190 @@
       </div>
     </main>
 
-    <!-- Right Panel -->
     <aside id="detailPanel" class="w-96 glass border-l border-slate-700/50 flex flex-col hidden relative z-10">
       <div class="p-4 border-b border-slate-700/50 flex items-center justify-between">
-        <h2 class="font-bold text-white flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-blue-500 pulse-dot"></span>
-          Detalle del Asset
-        </h2>
-        <button onclick="closeDetailPanel()" class="text-slate-400 hover:text-white transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+        <h2 class="font-bold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 pulse-dot"></span>Detalle del Asset</h2>
+        <button onclick="closeDetailPanel()" class="text-slate-400 hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
       <div class="flex-1 scroll-y p-4 space-y-4" id="detailContent"></div>
     </aside>
-
   </div>
 </div>
 
 <script>
-// Login System
-const VALID_USERNAME = 'admin';
-const VALID_PASSWORD = 'admin123';
+// ================= USER MANAGEMENT SYSTEM =================
+let users = [];
+let currentLoggedInUser = null;
+let currentUserRole = null;
+
+function initUsers() {
+  const stored = localStorage.getItem('lum_users');
+  if (stored) {
+    users = JSON.parse(stored);
+  } else {
+    users = [{ username: 'admin', password: 'admin123', role: 'admin' }];
+    localStorage.setItem('lum_users', JSON.stringify(users));
+  }
+  const sessionUser = sessionStorage.getItem('lum_session_user');
+  if (sessionUser) {
+    const user = users.find(u => u.username === sessionUser);
+    if (user) {
+      currentLoggedInUser = user.username;
+      currentUserRole = user.role;
+    }
+  }
+}
+
+function saveUsersToStorage() {
+  localStorage.setItem('lum_users', JSON.stringify(users));
+}
 
 function handleLogin(event) {
   event.preventDefault();
-  const username = document.getElementById('username').value;
+  const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
-  const errorMessage = document.getElementById('errorMessage');
+  const errorMsg = document.getElementById('errorMessage');
   const loginBox = document.querySelector('.login-box');
-  
-  if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-    sessionStorage.setItem('isLoggedIn', 'true');
+
+  const user = users.find(u => u.username === username && u.password === password);
+  if (user) {
+    currentLoggedInUser = user.username;
+    currentUserRole = user.role;
+    sessionStorage.setItem('lum_session_user', user.username);
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainContent').classList.remove('hidden');
+    
+    // Mostrar/ocultar botón Admin según el rol
+    updateAdminButtonVisibility();
+    
     initMap();
   } else {
-    errorMessage.style.display = 'block';
+    errorMsg.style.display = 'block';
     loginBox.classList.add('shake');
-    setTimeout(() => { loginBox.classList.remove('shake'); }, 500);
+    setTimeout(() => loginBox.classList.remove('shake'), 500);
+  }
+}
+
+function updateAdminButtonVisibility() {
+  const adminBtn = document.getElementById('adminBtn');
+  if (currentUserRole === 'admin') {
+    adminBtn.style.display = 'flex';
+  } else {
+    adminBtn.style.display = 'none';
   }
 }
 
 function logout() {
-  sessionStorage.removeItem('isLoggedIn');
+  sessionStorage.removeItem('lum_session_user');
   location.reload();
 }
 
-// Admin Modal Functions
+function renderUserList() {
+  // Solo admins pueden ver esta función
+  if (currentUserRole !== 'admin') {
+    alert('⚠️ No tiene permisos para administrar usuarios.');
+    closeAdminModal();
+    return;
+  }
+  
+  const listEl = document.getElementById('userList');
+  listEl.innerHTML = users.map(u => `
+    <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+      <div>
+        <div class="text-white font-semibold flex items-center gap-2">
+          ${u.username}
+          ${u.role === 'admin' ? '<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">Admin</span>' : '<span class="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">Usuario</span>'}
+        </div>
+        ${u.username === currentLoggedInUser ? '<div class="text-xs text-green-400 mt-1">● Sesión activa</div>' : ''}
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="handleChangePassword('${u.username}')" class="px-3 py-1 bg-yellow-600/20 text-yellow-400 hover:bg-yellow-600/30 rounded text-xs font-medium transition">Cambiar Clave</button>
+        <button onclick="handleResetPassword('${u.username}')" class="px-3 py-1 bg-orange-600/20 text-orange-400 hover:bg-orange-600/30 rounded text-xs font-medium transition">Resetear Clave</button>
+        ${u.username !== currentLoggedInUser ? `<button onclick="handleDeleteUser('${u.username}')" class="px-3 py-1 bg-red-600/20 text-red-400 hover:bg-red-600/30 rounded text-xs font-medium transition">Eliminar</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function handleResetPassword(username) {
+  if (currentUserRole !== 'admin') {
+    alert('⚠️ No tiene permisos para esta acción.');
+    return;
+  }
+  const newPass = prompt(`🔐 Admin: Ingrese la nueva contraseña para "${username}":`);
+  if (newPass && newPass.trim() !== '') {
+    const user = users.find(u => u.username === username);
+    if (user) {
+      user.password = newPass.trim();
+      saveUsersToStorage();
+      alert(`✅ Clave de "${username}" restablecida exitosamente.`);
+      renderUserList();
+    }
+  }
+}
+
+function handleChangePassword(username) {
+  if (username === currentLoggedInUser) {
+    const oldPass = prompt("🔒 Ingrese su contraseña actual:");
+    if (!oldPass) return;
+    const newPass = prompt(" Ingrese la nueva contraseña:");
+    if (!newPass || newPass.trim() === '') return;
+    const user = users.find(u => u.username === username);
+    if (user && user.password === oldPass) {
+      user.password = newPass.trim();
+      saveUsersToStorage();
+      alert("✅ Su contraseña ha sido actualizada exitosamente.");
+      renderUserList();
+    } else {
+      alert("❌ La contraseña actual es incorrecta.");
+    }
+  } else {
+    if (currentUserRole !== 'admin') {
+      alert('⚠️ No tiene permisos para cambiar la clave de otros usuarios.');
+      return;
+    }
+    handleResetPassword(username);
+  }
+}
+
+function handleDeleteUser(username) {
+  if (currentUserRole !== 'admin') {
+    alert('⚠️ No tiene permisos para eliminar usuarios.');
+    return;
+  }
+  if (confirm(`⚠️ ¿Está seguro de eliminar al usuario "${username}"? Esta acción no se puede deshacer.`)) {
+    users = users.filter(u => u.username !== username);
+    saveUsersToStorage();
+    renderUserList();
+  }
+}
+
+function handleAddUser() {
+  if (currentUserRole !== 'admin') {
+    alert('⚠️ No tiene permisos para agregar usuarios.');
+    return;
+  }
+  const username = document.getElementById('newUsername').value.trim();
+  const password = document.getElementById('newPassword').value;
+  const role = document.getElementById('newRole').value;
+  
+  if (!username || !password) { alert("⚠️ Complete todos los campos."); return; }
+  if (users.find(u => u.username === username)) { alert("⚠️ El nombre de usuario ya existe."); return; }
+  
+  users.push({ username, password, role });
+  saveUsersToStorage();
+  document.getElementById('newUsername').value = '';
+  document.getElementById('newPassword').value = '';
+  renderUserList();
+  alert(`✅ Usuario "${username}" agregado exitosamente.`);
+}
+
 function openAdminModal() {
+  if (currentUserRole !== 'admin') {
+    alert('⚠️ Solo los administradores pueden acceder a esta función.');
+    return;
+  }
+  renderUserList();
   document.getElementById('adminModal').classList.remove('hidden');
 }
 
@@ -352,14 +378,7 @@ function closeAdminModal() {
   document.getElementById('adminModal').classList.add('hidden');
 }
 
-window.onload = function() {
-  if (sessionStorage.getItem('isLoggedIn') === 'true') {
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('mainContent').classList.remove('hidden');
-    initMap();
-  }
-};
-
+// ================= EXISTING DASHBOARD LOGIC =================
 let allData = [];
 let filteredData = [];
 let map, markers = [];
@@ -368,12 +387,12 @@ let currentSelected = null;
 function categorizeError(msg, estado) {
   const m = msg.toLowerCase();
   const e = (estado || '').toLowerCase();
-  if (m.includes('no tiene energía') || m.includes('unexpected mains power loss')) return { name: 'Sin energía', color: '#ef4444', icon: '⚡' };
-  if (m.includes('no está accesible') || e === 'unreachable') return { name: 'OLC inaccesible', color: '#f97316', icon: '🔌' };
+  if (m.includes('no tiene energía') || m.includes('unexpected mains power loss')) return { name: 'Sin energía', color: '#ef4444', icon: '' };
+  if (m.includes('no está accesible') || e === 'unreachable') return { name: 'OLC inaccesible', color: '#f97316', icon: '' };
   if (m.includes('gps') && m.includes('roto')) return { name: 'GPS roto', color: '#eab308', icon: '📡' };
   if (m.includes('voltaje') || m.includes('corriente')) return { name: 'Voltaje/Corriente', color: '#a855f7', icon: '⚠️' };
   if (m.includes('driver') || m.includes('relé') || m.includes('regula')) return { name: 'Driver/Relé', color: '#ec4899', icon: '🔧' };
-  if (m.includes('puesta en servicio')) return { name: 'Puesta en servicio', color: '#06b6d4', icon: '⏱️' };
+  if (m.includes('puesta en servicio')) return { name: 'Puesta en servicio', color: '#06b6d4', icon: '️' };
   if (m.includes('fotocelda') || m.includes('componente de medición')) return { name: 'Sensor/Medición', color: '#8b5cf6', icon: '📏' };
   if (m.includes('configuración') || m.includes('coincidencia') || m.includes('segmento')) return { name: 'Error configuración', color: '#10b981', icon: '⚙️' };
   if (m.includes('ubicación') && m.includes('cambió')) return { name: 'Ubicación cambiada', color: '#6366f1', icon: '📍' };
@@ -407,18 +426,10 @@ function parseCSV(text) {
     row.push(current.trim());
     if (row.length < 12) continue;
     const obj = {
-      'Created': row[0],
-      'Asset ID': row[1],
-      'Mensaje de error': row[2],
-      'Estado': row[3],
-      'Fecha creación': row[4],
-      'Fecha modificación': row[5],
-      'External ID': row[6],
-      'Latitud': row[7].replace(',', '.'),
-      'Longitud': row[8].replace(',', '.'),
-      'Fecha programada': row[9],
-      'Localidad': row[10],
-      'Zona': row[11]
+      'Created': row[0], 'Asset ID': row[1], 'Mensaje de error': row[2], 'Estado': row[3],
+      'Fecha creación': row[4], 'Fecha modificación': row[5], 'External ID': row[6],
+      'Latitud': row[7].replace(',', '.'), 'Longitud': row[8].replace(',', '.'),
+      'Fecha programada': row[9], 'Localidad': row[10], 'Zona': row[11]
     };
     obj.lat = parseFloat(obj.Latitud);
     obj.lng = parseFloat(obj.Longitud);
@@ -468,17 +479,9 @@ function populateFilters() {
   const zonas = [...new Set(allData.map(d => d.zona))].filter(z => z && z !== 'Sin Zona').sort();
   const errors = [...new Set(allData.map(d => d.categoria.name))].sort();
   
-  const locSelect = document.getElementById('localidadFilter');
-  locSelect.innerHTML = '<option value="all">Todas las localidades</option>' + 
-    localidades.map(l => `<option value="${l}">${l}</option>`).join('');
-  
-  const zonaSelect = document.getElementById('zonaFilter');
-  zonaSelect.innerHTML = '<option value="all">Todas las zonas</option>' + 
-    zonas.map(z => `<option value="${z}">${z}</option>`).join('');
-  
-  const errorSelect = document.getElementById('errorFilter');
-  errorSelect.innerHTML = '<option value="all">Todos los tipos</option>' + 
-    errors.map(e => `<option value="${e}">${e}</option>`).join('');
+  document.getElementById('localidadFilter').innerHTML = '<option value="all">Todas las localidades</option>' + localidades.map(l => `<option value="${l}">${l}</option>`).join('');
+  document.getElementById('zonaFilter').innerHTML = '<option value="all">Todas las zonas</option>' + zonas.map(z => `<option value="${z}">${z}</option>`).join('');
+  document.getElementById('errorFilter').innerHTML = '<option value="all">Todos los tipos</option>' + errors.map(e => `<option value="${e}">${e}</option>`).join('');
 }
 
 function updateStats() {
@@ -497,16 +500,12 @@ function renderList() {
   container.innerHTML = filteredData.slice(0, 200).map((row, idx) => `
     <div class="error-item glass rounded-lg p-3 ${currentSelected && currentSelected['Asset ID'] === row['Asset ID'] ? 'active' : ''}" onclick="selectAsset(allData[${allData.indexOf(row)}])">
       <div class="flex items-start justify-between mb-2">
-        <span class="zone-badge" style="background:${row.categoria.color}20; color:${row.categoria.color}; border: 1px solid ${row.categoria.color}40">
-          ${row.categoria.icon} ${row.localidad}
-        </span>
+        <span class="zone-badge" style="background:${row.categoria.color}20; color:${row.categoria.color}; border: 1px solid ${row.categoria.color}40">${row.categoria.icon} ${row.localidad}</span>
         <span class="text-xs text-slate-400">${row['Fecha creación']}</span>
       </div>
       <div class="text-sm font-semibold text-white mb-1 truncate">${row['External ID']}</div>
       <div class="text-xs text-slate-300 line-clamp-2">${row['Mensaje de error']}</div>
-      <div class="flex items-center gap-2 mt-2">
-        <span class="text-xs text-slate-400">Zona: <span class="text-slate-200 font-semibold">${row.zona}</span></span>
-      </div>
+      <div class="flex items-center gap-2 mt-2"><span class="text-xs text-slate-400">Zona: <span class="text-slate-200 font-semibold">${row.zona}</span></span></div>
     </div>
   `).join('');
 }
@@ -520,13 +519,7 @@ function selectAsset(row) {
   document.getElementById('detailContent').innerHTML = `
     <div class="space-y-3">
       <div class="rounded-lg p-4" style="background: ${row.categoria.color}20; border: 1px solid ${row.categoria.color}40">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="text-2xl">${row.categoria.icon}</span>
-          <div>
-            <div class="text-xs text-slate-300 uppercase tracking-wider">Tipo de Falla</div>
-            <div class="font-bold text-white">${row.categoria.name}</div>
-          </div>
-        </div>
+        <div class="flex items-center gap-2 mb-2"><span class="text-2xl">${row.categoria.icon}</span><div><div class="text-xs text-slate-300 uppercase tracking-wider">Tipo de Falla</div><div class="font-bold text-white">${row.categoria.name}</div></div></div>
       </div>
       <div class="glass rounded-lg p-4 space-y-3">
         <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Información del Asset</div>
@@ -540,17 +533,14 @@ function selectAsset(row) {
           <div><div class="text-xs text-slate-400">Zona</div><div class="text-sm font-semibold text-white">${row.zona}</div></div>
         </div>
       </div>
-      <div class="glass rounded-lg p-4">
-        <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Mensaje de Error</div>
-        <div class="text-sm text-slate-200 leading-relaxed">${row['Mensaje de error']}</div>
-      </div>
+      <div class="glass rounded-lg p-4"><div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Mensaje de Error</div><div class="text-sm text-slate-200 leading-relaxed">${row['Mensaje de error']}</div></div>
       <div class="glass rounded-lg p-4">
         <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Ubicación</div>
         <div class="grid grid-cols-2 gap-3 text-sm">
           <div><div class="text-xs text-slate-400">Latitud</div><div class="font-mono text-white">${row.lat?.toFixed(6) || '-'}</div></div>
           <div><div class="text-xs text-slate-400">Longitud</div><div class="font-mono text-white">${row.lng?.toFixed(6) || '-'}</div></div>
         </div>
-        <button onclick="flyToAsset(${row.lat}, ${row.lng})" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg transition">📍 Ver en mapa</button>
+        <button onclick="flyToAsset(${row.lat}, ${row.lng})" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg transition"> Ver en mapa</button>
       </div>
       <div class="glass rounded-lg p-4">
         <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Fechas</div>
@@ -560,36 +550,14 @@ function selectAsset(row) {
           <div class="flex justify-between"><span class="text-slate-400">Programada:</span><span class="text-white font-mono">${row['Fecha programada'] || '-'}</span></div>
         </div>
       </div>
-      ${allErrorsForAsset.length > 1 ? `
-        <div class="glass rounded-lg p-4">
-          <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Todas las fallas de este asset (${allErrorsForAsset.length})</div>
-          <div class="space-y-2">
-            ${allErrorsForAsset.map(e => `
-              <div class="flex items-start gap-2 text-xs p-2 rounded bg-slate-800/50">
-                <span>${e.categoria.icon}</span>
-                <div class="flex-1">
-                  <div class="font-semibold" style="color:${e.categoria.color}">${e.categoria.name}</div>
-                  <div class="text-slate-400">${e['Fecha creación']}</div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
+      ${allErrorsForAsset.length > 1 ? `<div class="glass rounded-lg p-4"><div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Todas las fallas de este asset (${allErrorsForAsset.length})</div><div class="space-y-2">${allErrorsForAsset.map(e => `<div class="flex items-start gap-2 text-xs p-2 rounded bg-slate-800/50"><span>${e.categoria.icon}</span><div class="flex-1"><div class="font-semibold" style="color:${e.categoria.color}">${e.categoria.name}</div><div class="text-slate-400">${e['Fecha creación']}</div></div></div>`).join('')}</div></div>` : ''}
     </div>
   `;
   renderList();
 }
 
-function closeDetailPanel() {
-  document.getElementById('detailPanel').classList.add('hidden');
-  currentSelected = null;
-  renderList();
-}
-
-function flyToAsset(lat, lng) {
-  map.flyTo([lat, lng], 16, { duration: 1.5 });
-}
+function closeDetailPanel() { document.getElementById('detailPanel').classList.add('hidden'); currentSelected = null; renderList(); }
+function flyToAsset(lat, lng) { map.flyTo([lat, lng], 16, { duration: 1.5 }); }
 
 function applyFilters() {
   const search = document.getElementById('searchInput').value.toLowerCase();
@@ -603,9 +571,7 @@ function applyFilters() {
     const matchError = error === 'all' || row.categoria.name === error;
     return matchSearch && matchLocalidad && matchZona && matchError;
   });
-  updateStats();
-  renderMarkers(filteredData);
-  renderList();
+  updateStats(); renderMarkers(filteredData); renderList();
 }
 
 function handleFile(event) {
@@ -618,8 +584,7 @@ function handleFile(event) {
     document.getElementById('fileName').textContent = file.name;
     document.getElementById('fileCount').textContent = `(${allData.length} registros)`;
     document.getElementById('fileInfo').classList.remove('hidden');
-    populateFilters();
-    applyFilters();
+    populateFilters(); applyFilters();
   };
   reader.readAsText(file);
   event.target.value = '';
@@ -629,6 +594,17 @@ document.getElementById('searchInput').addEventListener('input', applyFilters);
 document.getElementById('localidadFilter').addEventListener('change', applyFilters);
 document.getElementById('zonaFilter').addEventListener('change', applyFilters);
 document.getElementById('errorFilter').addEventListener('change', applyFilters);
+
+// Initialize on load
+window.onload = function() {
+  initUsers();
+  if (currentLoggedInUser) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('mainContent').classList.remove('hidden');
+    updateAdminButtonVisibility();
+    initMap();
+  }
+};
 </script>
 </body>
 </html>
