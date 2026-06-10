@@ -7,6 +7,8 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; overflow: hidden; }
   #map { height: 100%; width: 100%; position: relative; z-index: 0; }
@@ -22,6 +24,8 @@
   .btn-primary:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); }
   .btn-admin { background: linear-gradient(135deg, #10b981 0%, #059669 100%); transition: all 0.3s; }
   .btn-admin:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); }
+  .btn-pdf { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); transition: all 0.3s; }
+  .btn-pdf:hover { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); }
   .zone-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
   .error-item { transition: all 0.2s; cursor: pointer; }
   .error-item:hover { background: rgba(59, 130, 246, 0.15); transform: translateX(4px); }
@@ -65,6 +69,34 @@
     background: rgba(30, 41, 59, 0.98); border: 2px solid rgba(16, 185, 129, 0.3);
     border-radius: 16px; padding: 32px; max-width: 650px; width: 90%; max-height: 80vh; overflow-y: auto;
   }
+
+  /* PDF Export Styles */
+  #pdfExportArea {
+    display: none;
+    background: white;
+    color: #1e293b;
+    padding: 40px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  #pdfExportArea.visible {
+    display: block;
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    width: 1200px;
+  }
+  .pdf-header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #3b82f6; padding-bottom: 20px; }
+  .pdf-header h1 { color: #1e293b; font-size: 28px; margin-bottom: 8px; }
+  .pdf-header p { color: #64748b; font-size: 14px; }
+  .pdf-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 30px; }
+  .pdf-stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: center; }
+  .pdf-stat-card .value { font-size: 32px; font-weight: bold; color: #1e293b; }
+  .pdf-stat-card .label { font-size: 12px; color: #64748b; text-transform: uppercase; }
+  .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .pdf-table th { background: #1e293b; color: white; padding: 10px 8px; text-align: left; font-weight: 600; }
+  .pdf-table td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
+  .pdf-table tr:nth-child(even) { background: #f8fafc; }
+  .pdf-footer { margin-top: 30px; text-align: center; color: #94a3b8; font-size: 11px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
 </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -86,7 +118,7 @@
           <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña</label>
           <input type="password" id="password" class="login-input w-full" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
         </div>
-        <div id="errorMessage" class="error-message">️ Usuario o contraseña incorrectos</div>
+        <div id="errorMessage" class="error-message">⚠️ Usuario o contraseña incorrectos</div>
         <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">🔐 Ingresar al Sistema</button>
       </div>
     </form>
@@ -97,14 +129,12 @@
 <div id="adminModal" class="modal-overlay hidden">
   <div class="modal-content fade-in">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-white">👥 Administrar Usuarios</h2>
+      <h2 class="text-xl font-bold text-white"> Administrar Usuarios</h2>
       <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
-    
     <div id="userList" class="space-y-3 mb-6"></div>
-    
     <div class="border-t border-slate-700 pt-4">
       <h3 class="text-sm font-semibold text-slate-300 mb-3">Agregar Nuevo Usuario</h3>
       <div class="space-y-3">
@@ -122,23 +152,27 @@
 
 <!-- Main Content -->
 <div id="mainContent" class="hidden h-screen flex flex-col">
-  <header class="glass border-b border-slate-700/50 px-6 py-4 flex items-center justify-between z-20 relative">
+  <header class="glass border-b border-slate-700/50 px-6 py-4 flex items-center justify-between z-20 relative flex-wrap gap-2">
     <div>
       <h1 class="text-xl font-bold text-white">Fallas de Luminarias de ALUMBRADO IMC</h1>
       <p class="text-xs text-slate-400 mt-1">Reporte por zonas y localidades</p>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 flex-wrap">
       <div id="fileInfo" class="text-xs text-slate-400 hidden">
         <span class="text-slate-500">Planilla:</span>
         <span id="fileName" class="text-blue-400 font-medium"></span>
         <span id="fileCount" class="text-slate-500 ml-2"></span>
       </div>
-      <button id="adminBtn" onclick="openAdminModal()" class="btn-admin px-5 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
+      <button id="adminBtn" onclick="openAdminModal()" class="btn-admin px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        Admin Usuarios
+        Admin
       </button>
-      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">🚪 Cerrar Sesión</button>
-      <button onclick="document.getElementById('fileInput').click()" class="btn-primary px-5 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
+      <button onclick="exportToPDF()" class="btn-pdf px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Exportar PDF
+      </button>
+      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">🚪 Salir</button>
+      <button onclick="document.getElementById('fileInput').click()" class="btn-primary px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Agregar Planilla
       </button>
@@ -197,6 +231,58 @@
   </div>
 </div>
 
+<!-- PDF Export Area (Hidden) -->
+<div id="pdfExportArea">
+  <div class="pdf-header">
+    <h1>⚡ Fallas de Luminarias - ALUMBRADO IMC</h1>
+    <p>Reporte generado el <span id="pdfDate"></span> | Usuario: <span id="pdfUser"></span></p>
+    <p id="pdfFilters" style="margin-top: 8px; font-size: 12px; color: #64748b;"></p>
+  </div>
+  
+  <div class="pdf-stats">
+    <div class="pdf-stat-card">
+      <div class="value" id="pdfStatTotal">0</div>
+      <div class="label">Total Fallas</div>
+    </div>
+    <div class="pdf-stat-card">
+      <div class="value" id="pdfStatLocalidades">0</div>
+      <div class="label">Localidades</div>
+    </div>
+    <div class="pdf-stat-card">
+      <div class="value" id="pdfStatNoEnergy">0</div>
+      <div class="label">Sin Energía</div>
+    </div>
+    <div class="pdf-stat-card">
+      <div class="value" id="pdfStatOLC">0</div>
+      <div class="label">OLC Inaccesible</div>
+    </div>
+  </div>
+
+  <h2 style="font-size: 18px; color: #1e293b; margin-bottom: 12px; border-left: 4px solid #3b82f6; padding-left: 12px;">Detalle de Fallas</h2>
+  
+  <table class="pdf-table" id="pdfTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Asset ID</th>
+        <th>External ID</th>
+        <th>Localidad</th>
+        <th>Zona</th>
+        <th>Tipo de Falla</th>
+        <th>Mensaje de Error</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody id="pdfTableBody">
+    </tbody>
+  </table>
+
+  <div class="pdf-footer">
+    <p>ALUMBRADO IMC - Sistema de Gestión de Fallas de Luminarias</p>
+    <p>Documento generado automáticamente | Total de registros: <span id="pdfTotalRecords">0</span></p>
+  </div>
+</div>
+
 <script>
 // ================= USER MANAGEMENT SYSTEM =================
 let users = [];
@@ -205,25 +291,16 @@ let currentUserRole = null;
 
 function initUsers() {
   const stored = localStorage.getItem('lum_users');
-  if (stored) {
-    users = JSON.parse(stored);
-  } else {
-    users = [{ username: 'admin', password: 'admin123', role: 'admin' }];
-    localStorage.setItem('lum_users', JSON.stringify(users));
-  }
+  if (stored) { users = JSON.parse(stored); } 
+  else { users = [{ username: 'admin', password: 'admin123', role: 'admin' }]; localStorage.setItem('lum_users', JSON.stringify(users)); }
   const sessionUser = sessionStorage.getItem('lum_session_user');
   if (sessionUser) {
     const user = users.find(u => u.username === sessionUser);
-    if (user) {
-      currentLoggedInUser = user.username;
-      currentUserRole = user.role;
-    }
+    if (user) { currentLoggedInUser = user.username; currentUserRole = user.role; }
   }
 }
 
-function saveUsersToStorage() {
-  localStorage.setItem('lum_users', JSON.stringify(users));
-}
+function saveUsersToStorage() { localStorage.setItem('lum_users', JSON.stringify(users)); }
 
 function handleLogin(event) {
   event.preventDefault();
@@ -231,7 +308,6 @@ function handleLogin(event) {
   const password = document.getElementById('password').value;
   const errorMsg = document.getElementById('errorMessage');
   const loginBox = document.querySelector('.login-box');
-
   const user = users.find(u => u.username === username && u.password === password);
   if (user) {
     currentLoggedInUser = user.username;
@@ -239,10 +315,7 @@ function handleLogin(event) {
     sessionStorage.setItem('lum_session_user', user.username);
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainContent').classList.remove('hidden');
-    
-    // Mostrar/ocultar botón Admin según el rol
     updateAdminButtonVisibility();
-    
     initMap();
   } else {
     errorMsg.style.display = 'block';
@@ -252,35 +325,17 @@ function handleLogin(event) {
 }
 
 function updateAdminButtonVisibility() {
-  const adminBtn = document.getElementById('adminBtn');
-  if (currentUserRole === 'admin') {
-    adminBtn.style.display = 'flex';
-  } else {
-    adminBtn.style.display = 'none';
-  }
+  document.getElementById('adminBtn').style.display = currentUserRole === 'admin' ? 'flex' : 'none';
 }
 
-function logout() {
-  sessionStorage.removeItem('lum_session_user');
-  location.reload();
-}
+function logout() { sessionStorage.removeItem('lum_session_user'); location.reload(); }
 
 function renderUserList() {
-  // Solo admins pueden ver esta función
-  if (currentUserRole !== 'admin') {
-    alert('⚠️ No tiene permisos para administrar usuarios.');
-    closeAdminModal();
-    return;
-  }
-  
-  const listEl = document.getElementById('userList');
-  listEl.innerHTML = users.map(u => `
+  if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); closeAdminModal(); return; }
+  document.getElementById('userList').innerHTML = users.map(u => `
     <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
       <div>
-        <div class="text-white font-semibold flex items-center gap-2">
-          ${u.username}
-          ${u.role === 'admin' ? '<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">Admin</span>' : '<span class="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">Usuario</span>'}
-        </div>
+        <div class="text-white font-semibold flex items-center gap-2">${u.username} ${u.role === 'admin' ? '<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">Admin</span>' : '<span class="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">Usuario</span>'}</div>
         ${u.username === currentLoggedInUser ? '<div class="text-xs text-green-400 mt-1">● Sesión activa</div>' : ''}
       </div>
       <div class="flex items-center gap-2">
@@ -293,19 +348,11 @@ function renderUserList() {
 }
 
 function handleResetPassword(username) {
-  if (currentUserRole !== 'admin') {
-    alert('⚠️ No tiene permisos para esta acción.');
-    return;
-  }
+  if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; }
   const newPass = prompt(`🔐 Admin: Ingrese la nueva contraseña para "${username}":`);
   if (newPass && newPass.trim() !== '') {
     const user = users.find(u => u.username === username);
-    if (user) {
-      user.password = newPass.trim();
-      saveUsersToStorage();
-      alert(`✅ Clave de "${username}" restablecida exitosamente.`);
-      renderUserList();
-    }
+    if (user) { user.password = newPass.trim(); saveUsersToStorage(); alert(`✅ Clave de "${username}" restablecida.`); renderUserList(); }
   }
 }
 
@@ -313,72 +360,279 @@ function handleChangePassword(username) {
   if (username === currentLoggedInUser) {
     const oldPass = prompt("🔒 Ingrese su contraseña actual:");
     if (!oldPass) return;
-    const newPass = prompt(" Ingrese la nueva contraseña:");
+    const newPass = prompt("🔑 Ingrese la nueva contraseña:");
     if (!newPass || newPass.trim() === '') return;
     const user = users.find(u => u.username === username);
-    if (user && user.password === oldPass) {
-      user.password = newPass.trim();
-      saveUsersToStorage();
-      alert("✅ Su contraseña ha sido actualizada exitosamente.");
-      renderUserList();
-    } else {
-      alert("❌ La contraseña actual es incorrecta.");
-    }
-  } else {
-    if (currentUserRole !== 'admin') {
-      alert('⚠️ No tiene permisos para cambiar la clave de otros usuarios.');
-      return;
-    }
-    handleResetPassword(username);
-  }
+    if (user && user.password === oldPass) { user.password = newPass.trim(); saveUsersToStorage(); alert("✅ Contraseña actualizada."); renderUserList(); }
+    else { alert("❌ Contraseña actual incorrecta."); }
+  } else { if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; } handleResetPassword(username); }
 }
 
 function handleDeleteUser(username) {
-  if (currentUserRole !== 'admin') {
-    alert('⚠️ No tiene permisos para eliminar usuarios.');
-    return;
-  }
-  if (confirm(`⚠️ ¿Está seguro de eliminar al usuario "${username}"? Esta acción no se puede deshacer.`)) {
-    users = users.filter(u => u.username !== username);
-    saveUsersToStorage();
-    renderUserList();
-  }
+  if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; }
+  if (confirm(`⚠️ ¿Eliminar al usuario "${username}"?`)) { users = users.filter(u => u.username !== username); saveUsersToStorage(); renderUserList(); }
 }
 
 function handleAddUser() {
-  if (currentUserRole !== 'admin') {
-    alert('⚠️ No tiene permisos para agregar usuarios.');
-    return;
-  }
+  if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; }
   const username = document.getElementById('newUsername').value.trim();
   const password = document.getElementById('newPassword').value;
   const role = document.getElementById('newRole').value;
-  
-  if (!username || !password) { alert("⚠️ Complete todos los campos."); return; }
-  if (users.find(u => u.username === username)) { alert("⚠️ El nombre de usuario ya existe."); return; }
-  
+  if (!username || !password) { alert("️ Complete todos los campos."); return; }
+  if (users.find(u => u.username === username)) { alert("⚠️ El usuario ya existe."); return; }
   users.push({ username, password, role });
   saveUsersToStorage();
   document.getElementById('newUsername').value = '';
   document.getElementById('newPassword').value = '';
   renderUserList();
-  alert(`✅ Usuario "${username}" agregado exitosamente.`);
+  alert(`✅ Usuario "${username}" agregado.`);
 }
 
-function openAdminModal() {
-  if (currentUserRole !== 'admin') {
-    alert('⚠️ Solo los administradores pueden acceder a esta función.');
+function openAdminModal() { if (currentUserRole !== 'admin') { alert('️ Solo administradores.'); return; } renderUserList(); document.getElementById('adminModal').classList.remove('hidden'); }
+function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+
+// ================= PDF EXPORT =================
+async function exportToPDF() {
+  if (filteredData.length === 0) {
+    alert('⚠️ No hay datos para exportar. Cargue una planilla primero.');
     return;
   }
-  renderUserList();
-  document.getElementById('adminModal').classList.remove('hidden');
+
+  const btn = event.target.closest('button');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Generando...';
+  btn.disabled = true;
+
+  try {
+    // Fill PDF area
+    const now = new Date();
+    document.getElementById('pdfDate').textContent = now.toLocaleDateString('es-UY') + ' ' + now.toLocaleTimeString('es-UY');
+    document.getElementById('pdfUser').textContent = currentLoggedInUser || 'admin';
+    
+    // Filters info
+    const filters = [];
+    const locFilter = document.getElementById('localidadFilter').value;
+    const zonaFilter = document.getElementById('zonaFilter').value;
+    const errorFilter = document.getElementById('errorFilter').value;
+    if (locFilter !== 'all') filters.push(`Localidad: ${locFilter}`);
+    if (zonaFilter !== 'all') filters.push(`Zona: ${zonaFilter}`);
+    if (errorFilter !== 'all') filters.push(`Tipo: ${errorFilter}`);
+    document.getElementById('pdfFilters').textContent = filters.length > 0 ? `Filtros aplicados: ${filters.join(' | ')}` : 'Sin filtros aplicados (todos los registros)';
+
+    // Stats
+    document.getElementById('pdfStatTotal').textContent = filteredData.length;
+    document.getElementById('pdfStatLocalidades').textContent = new Set(filteredData.map(d => d.localidad)).size;
+    document.getElementById('pdfStatNoEnergy').textContent = filteredData.filter(d => d.categoria.name === 'Sin energía').length;
+    document.getElementById('pdfStatOLC').textContent = filteredData.filter(d => d.categoria.name === 'OLC inaccesible').length;
+    document.getElementById('pdfTotalRecords').textContent = filteredData.length;
+
+    // Table
+    const tbody = document.getElementById('pdfTableBody');
+    tbody.innerHTML = filteredData.map((row, idx) => `
+      <tr>
+        <td>${idx + 1}</td>
+        <td style="font-family: monospace; font-size: 11px;">${row['Asset ID']}</td>
+        <td style="font-family: monospace; font-size: 11px;">${row['External ID']}</td>
+        <td>${row.localidad}</td>
+        <td>${row.zona}</td>
+        <td><span style="color: ${row.categoria.color}; font-weight: 600;">${row.categoria.icon} ${row.categoria.name}</span></td>
+        <td style="font-size: 11px;">${row['Mensaje de error']}</td>
+        <td style="font-size: 11px;">${row['Fecha creación'] || '-'}</td>
+      </tr>
+    `).join('');
+
+    // Show PDF area
+    const pdfArea = document.getElementById('pdfExportArea');
+    pdfArea.classList.add('visible');
+
+    // Wait for render
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Generate PDF with jsPDF
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+    
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    let yPosition = margin;
+
+    // Header
+    pdf.setFillColor(30, 41, 59);
+    pdf.rect(0, 0, pageWidth, 25, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(18);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('⚡ Fallas de Luminarias - ALUMBRADO IMC', margin, 12);
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(`Reporte generado: ${now.toLocaleDateString('es-UY')} ${now.toLocaleTimeString('es-UY')} | Usuario: ${currentLoggedInUser || 'admin'}`, margin, 20);
+
+    yPosition = 35;
+
+    // Stats boxes
+    const stats = [
+      { label: 'Total Fallas', value: filteredData.length, color: [59, 130, 246] },
+      { label: 'Localidades', value: new Set(filteredData.map(d => d.localidad)).size, color: [6, 182, 212] },
+      { label: 'Sin Energía', value: filteredData.filter(d => d.categoria.name === 'Sin energía').length, color: [239, 68, 68] },
+      { label: 'OLC Inaccesible', value: filteredData.filter(d => d.categoria.name === 'OLC inaccesible').length, color: [245, 158, 11] }
+    ];
+
+    const boxWidth = (pageWidth - margin * 2 - 10 * 3) / 4;
+    stats.forEach((stat, i) => {
+      const x = margin + i * (boxWidth + 10);
+      pdf.setFillColor(stat.color[0], stat.color[1], stat.color[2]);
+      pdf.roundedRect(x, yPosition, boxWidth, 20, 2, 2, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(16);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(String(stat.value), x + boxWidth / 2, yPosition + 9, { align: 'center' });
+      pdf.setFontSize(7);
+      pdf.setFont(undefined, 'normal');
+      pdf.text(stat.label.toUpperCase(), x + boxWidth / 2, yPosition + 16, { align: 'center' });
+    });
+
+    yPosition += 30;
+
+    // Filters
+    if (filters.length > 0) {
+      pdf.setTextColor(100, 116, 139);
+      pdf.setFontSize(8);
+      pdf.text(`Filtros: ${filters.join(' | ')}`, margin, yPosition);
+      yPosition += 8;
+    }
+
+    // Table header
+    pdf.setFillColor(30, 41, 59);
+    pdf.rect(margin, yPosition, pageWidth - margin * 2, 8, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(7);
+    pdf.setFont(undefined, 'bold');
+    
+    const colWidths = [10, 25, 45, 30, 20, 30, 70, 25];
+    const headers = ['#', 'Asset ID', 'External ID', 'Localidad', 'Zona', 'Tipo Falla', 'Mensaje de Error', 'Fecha'];
+    let xPos = margin;
+    headers.forEach((h, i) => {
+      pdf.text(h, xPos + 2, yPosition + 5);
+      xPos += colWidths[i];
+    });
+
+    yPosition += 8;
+
+    // Table rows
+    pdf.setFont(undefined, 'normal');
+    pdf.setFontSize(6.5);
+    
+    const maxRowsPerPage = 35;
+    let rowCount = 0;
+    let currentPage = 1;
+
+    filteredData.forEach((row, idx) => {
+      if (rowCount >= maxRowsPerPage) {
+        // Footer
+        pdf.setTextColor(148, 163, 184);
+        pdf.setFontSize(7);
+        pdf.text(`Página ${currentPage} | ALUMBRADO IMC - Sistema de Gestión de Fallas`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+        
+        // New page
+        pdf.addPage();
+        currentPage++;
+        yPosition = margin;
+        rowCount = 0;
+
+        // Re-add header on new page
+        pdf.setFillColor(30, 41, 59);
+        pdf.rect(0, 0, pageWidth, 15, 'F');
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('⚡ Fallas de Luminarias - ALUMBRADO IMC', margin, 10);
+        yPosition = 22;
+
+        // Table header again
+        pdf.setFillColor(30, 41, 59);
+        pdf.rect(margin, yPosition, pageWidth - margin * 2, 8, 'F');
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(7);
+        pdf.setFont(undefined, 'bold');
+        xPos = margin;
+        headers.forEach((h, i) => {
+          pdf.text(h, xPos + 2, yPosition + 5);
+          xPos += colWidths[i];
+        });
+        yPosition += 8;
+        pdf.setFont(undefined, 'normal');
+        pdf.setFontSize(6.5);
+      }
+
+      // Alternate row colors
+      if (idx % 2 === 0) {
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(margin, yPosition, pageWidth - margin * 2, 6, 'F');
+      }
+
+      // Color for error type
+      const colorMap = {
+        'Sin energía': [239, 68, 68],
+        'OLC inaccesible': [249, 115, 22],
+        'GPS roto': [234, 179, 8],
+        'Voltaje/Corriente': [168, 85, 247],
+        'Driver/Relé': [236, 72, 153],
+        'Puesta en servicio': [6, 182, 212],
+        'Error configuración': [16, 185, 129],
+        'Ubicación cambiada': [99, 102, 241],
+        'Otros': [100, 116, 139]
+      };
+      const errColor = colorMap[row.categoria.name] || [100, 116, 139];
+
+      pdf.setTextColor(30, 41, 59);
+      xPos = margin;
+      
+      pdf.text(String(idx + 1), xPos + 2, yPosition + 4); xPos += colWidths[0];
+      pdf.setFontSize(5.5);
+      pdf.text(String(row['Asset ID']), xPos + 1, yPosition + 4); xPos += colWidths[1];
+      pdf.text(String(row['External ID']), xPos + 1, yPosition + 4); xPos += colWidths[2];
+      pdf.setFontSize(6.5);
+      pdf.text(String(row.localidad), xPos + 1, yPosition + 4); xPos += colWidths[3];
+      pdf.text(String(row.zona), xPos + 1, yPosition + 4); xPos += colWidths[4];
+      
+      pdf.setTextColor(errColor[0], errColor[1], errColor[2]);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(row.categoria.name, xPos + 1, yPosition + 4); xPos += colWidths[5];
+      pdf.setFont(undefined, 'normal');
+      
+      pdf.setTextColor(30, 41, 59);
+      pdf.setFontSize(5.5);
+      const errorMsg = row['Mensaje de error'].substring(0, 55);
+      pdf.text(errorMsg, xPos + 1, yPosition + 4); xPos += colWidths[6];
+      pdf.setFontSize(6.5);
+      const fecha = (row['Fecha creación'] || '-').split('T')[0];
+      pdf.text(fecha, xPos + 1, yPosition + 4);
+
+      yPosition += 6;
+      rowCount++;
+    });
+
+    // Final footer
+    pdf.setTextColor(148, 163, 184);
+    pdf.setFontSize(7);
+    pdf.text(`Página ${currentPage} | Total: ${filteredData.length} registros | ALUMBRADO IMC`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+
+    // Save
+    const fileName = `Fallas_Luminarias_IMC_${now.toISOString().split('T')[0]}.pdf`;
+    pdf.save(fileName);
+
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('❌ Error al generar el PDF: ' + error.message);
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    document.getElementById('pdfExportArea').classList.remove('visible');
+  }
 }
 
-function closeAdminModal() {
-  document.getElementById('adminModal').classList.add('hidden');
-}
-
-// ================= EXISTING DASHBOARD LOGIC =================
+// ================= DASHBOARD LOGIC =================
 let allData = [];
 let filteredData = [];
 let map, markers = [];
@@ -387,12 +641,12 @@ let currentSelected = null;
 function categorizeError(msg, estado) {
   const m = msg.toLowerCase();
   const e = (estado || '').toLowerCase();
-  if (m.includes('no tiene energía') || m.includes('unexpected mains power loss')) return { name: 'Sin energía', color: '#ef4444', icon: '' };
-  if (m.includes('no está accesible') || e === 'unreachable') return { name: 'OLC inaccesible', color: '#f97316', icon: '' };
+  if (m.includes('no tiene energía') || m.includes('unexpected mains power loss')) return { name: 'Sin energía', color: '#ef4444', icon: '⚡' };
+  if (m.includes('no está accesible') || e === 'unreachable') return { name: 'OLC inaccesible', color: '#f97316', icon: '🔌' };
   if (m.includes('gps') && m.includes('roto')) return { name: 'GPS roto', color: '#eab308', icon: '📡' };
   if (m.includes('voltaje') || m.includes('corriente')) return { name: 'Voltaje/Corriente', color: '#a855f7', icon: '⚠️' };
   if (m.includes('driver') || m.includes('relé') || m.includes('regula')) return { name: 'Driver/Relé', color: '#ec4899', icon: '🔧' };
-  if (m.includes('puesta en servicio')) return { name: 'Puesta en servicio', color: '#06b6d4', icon: '️' };
+  if (m.includes('puesta en servicio')) return { name: 'Puesta en servicio', color: '#06b6d4', icon: '⏱️' };
   if (m.includes('fotocelda') || m.includes('componente de medición')) return { name: 'Sensor/Medición', color: '#8b5cf6', icon: '📏' };
   if (m.includes('configuración') || m.includes('coincidencia') || m.includes('segmento')) return { name: 'Error configuración', color: '#10b981', icon: '⚙️' };
   if (m.includes('ubicación') && m.includes('cambió')) return { name: 'Ubicación cambiada', color: '#6366f1', icon: '📍' };
@@ -443,9 +697,7 @@ function parseCSV(text) {
 
 function initMap() {
   map = L.map('map', { zoomControl: true }).setView([-34.75, -56.0], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap', maxZoom: 19
-  }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map);
 }
 
 function renderMarkers(data) {
@@ -457,16 +709,7 @@ function renderMarkers(data) {
     const marker = L.circleMarker([row.lat, row.lng], {
       radius: 9, fillColor: row.categoria.color, color: '#ffffff', weight: 2, opacity: 1, fillOpacity: 0.9
     }).addTo(map);
-    marker.bindPopup(`
-      <div style="font-size:13px;color:#1e293b;">
-        <strong style="color:${row.categoria.color}">${row.categoria.icon} ${row.categoria.name}</strong><br>
-        <b>Localidad:</b> ${row.localidad}<br>
-        <b>Zona:</b> ${row.zona}<br>
-        <b>Asset:</b> ${row['Asset ID']}<br>
-        <b>External:</b> ${row['External ID']}<br>
-        <b>Fecha:</b> ${row['Fecha creación']}
-      </div>
-    `);
+    marker.bindPopup(`<div style="font-size:13px;color:#1e293b;"><strong style="color:${row.categoria.color}">${row.categoria.icon} ${row.categoria.name}</strong><br><b>Localidad:</b> ${row.localidad}<br><b>Zona:</b> ${row.zona}<br><b>Asset:</b> ${row['Asset ID']}<br><b>External:</b> ${row['External ID']}<br><b>Fecha:</b> ${row['Fecha creación']}</div>`);
     marker.on('click', () => selectAsset(row));
     markers.push(marker);
     bounds.push([row.lat, row.lng]);
@@ -478,7 +721,6 @@ function populateFilters() {
   const localidades = [...new Set(allData.map(d => d.localidad))].filter(l => l && l !== 'Sin Localidad').sort();
   const zonas = [...new Set(allData.map(d => d.zona))].filter(z => z && z !== 'Sin Zona').sort();
   const errors = [...new Set(allData.map(d => d.categoria.name))].sort();
-  
   document.getElementById('localidadFilter').innerHTML = '<option value="all">Todas las localidades</option>' + localidades.map(l => `<option value="${l}">${l}</option>`).join('');
   document.getElementById('zonaFilter').innerHTML = '<option value="all">Todas las zonas</option>' + zonas.map(z => `<option value="${z}">${z}</option>`).join('');
   document.getElementById('errorFilter').innerHTML = '<option value="all">Todos los tipos</option>' + errors.map(e => `<option value="${e}">${e}</option>`).join('');
@@ -493,10 +735,7 @@ function updateStats() {
 
 function renderList() {
   const container = document.getElementById('errorList');
-  if (filteredData.length === 0) {
-    container.innerHTML = '<div class="text-center text-slate-400 mt-10 p-4"><div class="text-4xl mb-2">🔍</div><p class="text-sm">No hay resultados</p></div>';
-    return;
-  }
+  if (filteredData.length === 0) { container.innerHTML = '<div class="text-center text-slate-400 mt-10 p-4"><div class="text-4xl mb-2">🔍</div><p class="text-sm">No hay resultados</p></div>'; return; }
   container.innerHTML = filteredData.slice(0, 200).map((row, idx) => `
     <div class="error-item glass rounded-lg p-3 ${currentSelected && currentSelected['Asset ID'] === row['Asset ID'] ? 'active' : ''}" onclick="selectAsset(allData[${allData.indexOf(row)}])">
       <div class="flex items-start justify-between mb-2">
@@ -540,7 +779,7 @@ function selectAsset(row) {
           <div><div class="text-xs text-slate-400">Latitud</div><div class="font-mono text-white">${row.lat?.toFixed(6) || '-'}</div></div>
           <div><div class="text-xs text-slate-400">Longitud</div><div class="font-mono text-white">${row.lng?.toFixed(6) || '-'}</div></div>
         </div>
-        <button onclick="flyToAsset(${row.lat}, ${row.lng})" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg transition"> Ver en mapa</button>
+        <button onclick="flyToAsset(${row.lat}, ${row.lng})" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg transition">📍 Ver en mapa</button>
       </div>
       <div class="glass rounded-lg p-4">
         <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Fechas</div>
@@ -595,7 +834,6 @@ document.getElementById('localidadFilter').addEventListener('change', applyFilte
 document.getElementById('zonaFilter').addEventListener('change', applyFilters);
 document.getElementById('errorFilter').addEventListener('change', applyFilters);
 
-// Initialize on load
 window.onload = function() {
   initUsers();
   if (currentLoggedInUser) {
