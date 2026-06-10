@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fallas de Luminarias de ALUMBRADO IMC - Login</title>
+<title>Fallas de Luminarias de ALUMBRADO IMC</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -20,6 +20,8 @@
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   .btn-primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); transition: all 0.3s; }
   .btn-primary:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); }
+  .btn-admin { background: linear-gradient(135deg, #10b981 0%, #059669 100%); transition: all 0.3s; }
+  .btn-admin:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); }
   .zone-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
   .error-item { transition: all 0.2s; cursor: pointer; }
   .error-item:hover { background: rgba(59, 130, 246, 0.15); transform: translateX(4px); }
@@ -33,21 +35,6 @@
   .leaflet-control-zoom { z-index: 999 !important; }
   .leaflet-control-attribution { z-index: 998 !important; }
   .leaflet-top, .leaflet-bottom { z-index: 998 !important; }
-  .logo-container { display: flex; align-items: center; gap: 16px; }
-  .logo-wrapper {
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 70px;
-    height: 70px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  }
-  .logo-svg { width: 50px; height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
   
   /* Login Styles */
   #loginOverlay {
@@ -69,7 +56,7 @@
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    max-width: 450px;
+    max-width: 420px;
     width: 90%;
   }
   .login-input {
@@ -103,6 +90,30 @@
     25% { transform: translateX(-10px); }
     75% { transform: translateX(10px); }
   }
+  
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-content {
+    background: rgba(30, 41, 59, 0.98);
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
 </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -111,28 +122,6 @@
 <div id="loginOverlay">
   <div class="login-box fade-in">
     <div class="text-center mb-8">
-      <div class="logo-wrapper mx-auto mb-4" style="width: 80px; height: 80px;">
-        <svg class="logo-svg" style="width: 60px; height: 60px;" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="60" cy="30" r="22" fill="url(#sunGrad)"/>
-          <path d="M55 35 C30 20, 10 45, 20 75 C28 95, 45 100, 55 80 C60 65, 58 50, 55 35Z" fill="url(#greenGrad)"/>
-          <path d="M65 35 C90 20, 110 45, 100 75 C92 95, 75 100, 65 80 C60 65, 62 50, 65 35Z" fill="url(#blueGrad)"/>
-          <defs>
-            <radialGradient id="sunGrad" cx="45%" cy="40%">
-              <stop offset="0%" stop-color="#FFD700"/>
-              <stop offset="60%" stop-color="#FFA500"/>
-              <stop offset="100%" stop-color="#FF8C00"/>
-            </radialGradient>
-            <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#6B8E23"/>
-              <stop offset="100%" stop-color="#4A7A1A"/>
-            </linearGradient>
-            <linearGradient id="blueGrad" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#1DA1F2"/>
-              <stop offset="100%" stop-color="#0D7BC4"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
       <h1 class="text-2xl font-bold text-white mb-2">ALUMBRADO IMC</h1>
       <p class="text-slate-400 text-sm">Sistema de Gestión de Fallas</p>
     </div>
@@ -155,9 +144,42 @@
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Admin Users Modal -->
+<div id="adminModal" class="modal-overlay hidden">
+  <div class="modal-content fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-white">👥 Administrar Usuarios</h2>
+      <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
     
-    <div class="mt-6 text-center text-xs text-slate-500">
-      <p>Usuario: <strong class="text-slate-400">admin</strong> | Contraseña: <strong class="text-slate-400">admin123</strong></p>
+    <div class="space-y-4">
+      <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+        <div>
+          <div class="text-white font-semibold">admin</div>
+          <div class="text-xs text-slate-400">Administrador principal</div>
+        </div>
+        <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold">Activo</span>
+      </div>
+      
+      <div class="border-t border-slate-700 pt-4">
+        <h3 class="text-sm font-semibold text-slate-300 mb-3">Agregar Nuevo Usuario</h3>
+        <div class="space-y-3">
+          <input type="text" placeholder="Nombre de usuario" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-green-500">
+          <input type="password" placeholder="Contraseña" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-green-500">
+          <select class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-green-500">
+            <option value="user">Usuario</option>
+            <option value="admin">Administrador</option>
+          </select>
+          <button class="w-full btn-admin py-2 rounded-lg text-white font-semibold text-sm">
+            ➕ Agregar Usuario
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -166,33 +188,9 @@
 <div id="mainContent" class="hidden h-screen flex flex-col">
   <!-- Header -->
   <header class="glass border-b border-slate-700/50 px-6 py-4 flex items-center justify-between z-20 relative">
-    <div class="logo-container">
-      <div class="logo-wrapper">
-        <svg class="logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="60" cy="30" r="22" fill="url(#sunGrad)"/>
-          <path d="M55 35 C30 20, 10 45, 20 75 C28 95, 45 100, 55 80 C60 65, 58 50, 55 35Z" fill="url(#greenGrad)"/>
-          <path d="M65 35 C90 20, 110 45, 100 75 C92 95, 75 100, 65 80 C60 65, 62 50, 65 35Z" fill="url(#blueGrad)"/>
-          <defs>
-            <radialGradient id="sunGrad" cx="45%" cy="40%">
-              <stop offset="0%" stop-color="#FFD700"/>
-              <stop offset="60%" stop-color="#FFA500"/>
-              <stop offset="100%" stop-color="#FF8C00"/>
-            </radialGradient>
-            <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#6B8E23"/>
-              <stop offset="100%" stop-color="#4A7A1A"/>
-            </linearGradient>
-            <linearGradient id="blueGrad" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#1DA1F2"/>
-              <stop offset="100%" stop-color="#0D7BC4"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <div>
-        <h1 class="text-xl font-bold text-white">Fallas de Luminarias de ALUMBRADO IMC</h1>
-        <p class="text-xs text-slate-400 mt-1">Reporte por zonas y localidades</p>
-      </div>
+    <div>
+      <h1 class="text-xl font-bold text-white">Fallas de Luminarias de ALUMBRADO IMC</h1>
+      <p class="text-xs text-slate-400 mt-1">Reporte por zonas y localidades</p>
     </div>
     <div class="flex items-center gap-3">
       <div id="fileInfo" class="text-xs text-slate-400 hidden">
@@ -200,6 +198,10 @@
         <span id="fileName" class="text-blue-400 font-medium"></span>
         <span id="fileCount" class="text-slate-500 ml-2"></span>
       </div>
+      <button onclick="openAdminModal()" class="btn-admin px-5 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Admin Usuarios
+      </button>
       <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">
         🚪 Cerrar Sesión
       </button>
@@ -319,25 +321,20 @@ const VALID_PASSWORD = 'admin123';
 
 function handleLogin(event) {
   event.preventDefault();
-  
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
   const errorMessage = document.getElementById('errorMessage');
   const loginBox = document.querySelector('.login-box');
   
   if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-    // Login successful
     sessionStorage.setItem('isLoggedIn', 'true');
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainContent').classList.remove('hidden');
     initMap();
   } else {
-    // Login failed
     errorMessage.style.display = 'block';
     loginBox.classList.add('shake');
-    setTimeout(() => {
-      loginBox.classList.remove('shake');
-    }, 500);
+    setTimeout(() => { loginBox.classList.remove('shake'); }, 500);
   }
 }
 
@@ -346,7 +343,15 @@ function logout() {
   location.reload();
 }
 
-// Check if already logged in
+// Admin Modal Functions
+function openAdminModal() {
+  document.getElementById('adminModal').classList.remove('hidden');
+}
+
+function closeAdminModal() {
+  document.getElementById('adminModal').classList.add('hidden');
+}
+
 window.onload = function() {
   if (sessionStorage.getItem('isLoggedIn') === 'true') {
     document.getElementById('loginOverlay').style.display = 'none';
@@ -355,7 +360,6 @@ window.onload = function() {
   }
 };
 
-// Rest of the existing code...
 let allData = [];
 let filteredData = [];
 let map, markers = [];
@@ -384,84 +388,44 @@ function cleanZona(zonaRaw) {
   cleaned = cleaned.replace(/Streetlight\/Zona/gi, '').trim();
   cleaned = cleaned.replace(/Zona\s*/gi, '').trim();
   cleaned = cleaned.replace(/^[-0]+$/, 'DESAFECTADOS');
-  if (cleaned === '' || cleaned === '0' || cleaned === '-') {
-    return 'DESAFECTADOS';
-  }
+  if (cleaned === '' || cleaned === '0' || cleaned === '-') return 'DESAFECTADOS';
   return cleaned;
 }
 
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   const result = [];
-  const firstLine = lines[0].toLowerCase();
-  const isNewFormat = firstLine.includes('created') && firstLine.includes('inconsistent');
-  
-  if (isNewFormat) {
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
-      const row = [];
-      let inQuotes = false, current = '';
-      for (const char of lines[i]) {
-        if (char === '"') inQuotes = !inQuotes;
-        else if (char === ',' && !inQuotes) { row.push(current.trim()); current = ''; }
-        else current += char;
-      }
-      row.push(current.trim());
-      if (row.length < 12) continue;
-      const obj = {
-        'Created': row[0],
-        'Asset ID': row[1],
-        'Mensaje de error': row[2],
-        'Estado': row[3],
-        'Fecha creación': row[4],
-        'Fecha modificación': row[5],
-        'External ID': row[6],
-        'Latitud': row[7].replace(',', '.'),
-        'Longitud': row[8].replace(',', '.'),
-        'Fecha programada': row[9],
-        'Localidad': row[10],
-        'Zona': row[11]
-      };
-      obj.lat = parseFloat(obj.Latitud);
-      obj.lng = parseFloat(obj.Longitud);
-      obj.categoria = categorizeError(obj['Mensaje de error'], obj['Estado']);
-      obj.zona = cleanZona(obj.Zona);
-      obj.localidad = obj.Localidad || 'Sin Localidad';
-      result.push(obj);
+  for (let i = 0; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const row = [];
+    let inQuotes = false, current = '';
+    for (const char of lines[i]) {
+      if (char === '"') inQuotes = !inQuotes;
+      else if (char === ',' && !inQuotes) { row.push(current.trim()); current = ''; }
+      else current += char;
     }
-  } else {
-    for (let i = 0; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
-      const row = [];
-      let inQuotes = false, current = '';
-      for (const char of lines[i]) {
-        if (char === '"') inQuotes = !inQuotes;
-        else if (char === ',' && !inQuotes) { row.push(current.trim()); current = ''; }
-        else current += char;
-      }
-      row.push(current.trim());
-      if (row.length < 12) continue;
-      const obj = {
-        'Created': row[0],
-        'Asset ID': row[1],
-        'Mensaje de error': row[2],
-        'Estado': row[3],
-        'Fecha creación': row[4],
-        'Fecha modificación': row[5],
-        'External ID': row[6],
-        'Latitud': row[7].replace(',', '.'),
-        'Longitud': row[8].replace(',', '.'),
-        'Fecha programada': row[9],
-        'Localidad': row[10],
-        'Zona': row[11]
-      };
-      obj.lat = parseFloat(obj.Latitud);
-      obj.lng = parseFloat(obj.Longitud);
-      obj.categoria = categorizeError(obj['Mensaje de error'], obj['Estado']);
-      obj.zona = cleanZona(obj.Zona);
-      obj.localidad = obj.Localidad || 'Sin Localidad';
-      result.push(obj);
-    }
+    row.push(current.trim());
+    if (row.length < 12) continue;
+    const obj = {
+      'Created': row[0],
+      'Asset ID': row[1],
+      'Mensaje de error': row[2],
+      'Estado': row[3],
+      'Fecha creación': row[4],
+      'Fecha modificación': row[5],
+      'External ID': row[6],
+      'Latitud': row[7].replace(',', '.'),
+      'Longitud': row[8].replace(',', '.'),
+      'Fecha programada': row[9],
+      'Localidad': row[10],
+      'Zona': row[11]
+    };
+    obj.lat = parseFloat(obj.Latitud);
+    obj.lng = parseFloat(obj.Longitud);
+    obj.categoria = categorizeError(obj['Mensaje de error'], obj['Estado']);
+    obj.zona = cleanZona(obj.Zona);
+    obj.localidad = obj.Localidad || 'Sin Localidad';
+    result.push(obj);
   }
   return result;
 }
