@@ -10,8 +10,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; overflow-x: hidden; }
-  #map { height: 100%; width: 100%; position: relative; z-index: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; overflow: hidden; margin: 0; padding: 0; }
+  
+  /* FIX CRÍTICO: El mapa necesita altura explícita */
+  #map { 
+    height: 100%; 
+    width: 100%; 
+    position: relative; 
+    z-index: 0;
+    min-height: 400px;
+  }
+  
   .scroll-y { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #475569 transparent; }
   .scroll-y::-webkit-scrollbar { width: 6px; }
   .scroll-y::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
@@ -28,8 +37,6 @@
   .btn-pdf:hover { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
   .btn-charts { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); transition: all 0.3s; }
   .btn-charts:hover { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
-  .btn-view { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); transition: all 0.3s; }
-  .btn-view:hover { background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6, 182, 212, 0.4); }
   .zone-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
   .error-item { transition: all 0.2s; cursor: pointer; }
   .error-item:hover { background: rgba(59, 130, 246, 0.15); transform: translateX(4px); }
@@ -93,31 +100,12 @@
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-  /* RESPONSIVE - MOBILE */
-  .view-list { display: flex; }
-  .view-map { display: none; }
-  .view-detail { display: none; }
-  
+  /* RESPONSIVE */
   @media (max-width: 1024px) {
-    #mainLayout {
-      flex-direction: column !important;
-    }
-    .sidebar-panel {
-      width: 100% !important;
-      max-height: 45vh;
-      border-right: none !important;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
-    }
-    .map-panel {
-      flex: 1 !important;
-      min-height: 50vh;
-    }
-    .detail-panel-mobile {
-      width: 100% !important;
-      max-height: 60vh;
-      border-left: none !important;
-      border-top: 1px solid rgba(148, 163, 184, 0.15);
-    }
+    #mainLayout { flex-direction: column !important; }
+    .sidebar-panel { width: 100% !important; max-height: 45vh; border-right: none !important; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+    .map-panel { flex: 1 !important; min-height: 50vh; }
+    .detail-panel-mobile { width: 100% !important; max-height: 60vh; border-left: none !important; border-top: 1px solid rgba(148, 163, 184, 0.15); }
     .view-list { display: flex; }
     .view-map { display: none; }
     .view-detail { display: none; }
@@ -146,9 +134,7 @@
   .mobile-view-btns {
     display: none;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     z-index: 9990;
     background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(10px);
@@ -157,23 +143,12 @@
     gap: 4px;
   }
   .mobile-view-btn {
-    flex: 1;
-    padding: 10px 8px;
-    border-radius: 10px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: #94a3b8;
-    background: rgba(51, 65, 85, 0.5);
-    border: 1px solid rgba(148, 163, 184, 0.1);
-    cursor: pointer;
-    transition: all 0.2s;
+    flex: 1; padding: 10px 8px; border-radius: 10px; text-align: center;
+    font-size: 12px; font-weight: 600; color: #94a3b8;
+    background: rgba(51, 65, 85, 0.5); border: 1px solid rgba(148, 163, 184, 0.1);
+    cursor: pointer; transition: all 0.2s;
   }
-  .mobile-view-btn.active {
-    background: rgba(59, 130, 246, 0.3);
-    color: white;
-    border-color: #3b82f6;
-  }
+  .mobile-view-btn.active { background: rgba(59, 130, 246, 0.3); color: white; border-color: #3b82f6; }
   .mobile-view-btn .icon { font-size: 18px; display: block; margin-bottom: 2px; }
 </style>
 </head>
@@ -197,7 +172,7 @@
           <input type="password" id="password" class="login-input w-full" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
         </div>
         <div id="errorMessage" class="error-message">⚠️ Usuario o contraseña incorrectos</div>
-        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6"> Ingresar al Sistema</button>
+        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">🔐 Ingresar al Sistema</button>
       </div>
     </form>
   </div>
@@ -207,7 +182,7 @@
 <div id="adminModal" class="modal-overlay hidden">
   <div class="modal-content fade-in">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-white">👥 Administrar Usuarios</h2>
+      <h2 class="text-xl font-bold text-white"> Administrar Usuarios</h2>
       <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -267,14 +242,14 @@
     </div>
     <div class="space-y-4">
       <div class="p-4 bg-red-500/10 rounded-lg border border-red-500/30 text-center">
-        <div class="text-4xl mb-2">⚠️</div>
+        <div class="text-4xl mb-2">️</div>
         <div class="text-white font-semibold">¿Está seguro de eliminar al usuario?</div>
         <div class="text-red-300 text-lg font-bold mt-1" id="deleteTargetUser">-</div>
         <div class="text-slate-400 text-xs mt-2">Esta acción no se puede deshacer</div>
       </div>
       <div class="flex gap-3">
         <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-slate-600 hover:bg-slate-500 transition">Cancelar</button>
-        <button onclick="confirmDeleteUser()" class="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-red-600 hover:bg-red-500 transition">️ Sí, Eliminar</button>
+        <button onclick="confirmDeleteUser()" class="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-red-600 hover:bg-red-500 transition">🗑️ Sí, Eliminar</button>
       </div>
     </div>
   </div>
@@ -333,7 +308,7 @@
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="chart-card">
-        <h3> Distribución por Tipo de Falla</h3>
+        <h3>🎯 Distribución por Tipo de Falla</h3>
         <div class="chart-container"><canvas id="chartErrorTypes"></canvas></div>
       </div>
       <div class="chart-card">
@@ -345,7 +320,7 @@
         <div class="chart-container"><canvas id="chartZonas"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>📅 Evolución de Fallas (Últimos 30 días)</h3>
+        <h3> Evolución de Fallas (Últimos 30 días)</h3>
         <div class="chart-container"><canvas id="chartTimeline"></canvas></div>
       </div>
       <div class="chart-card lg:col-span-2">
@@ -388,7 +363,7 @@
         <span class="hidden sm:inline">PDF</span>
       </button>
       <button onclick="logout()" class="header-btn px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
-        <span class="hidden sm:inline">🚪</span><span class="sm:hidden"></span>
+        <span class="hidden sm:inline">🚪</span><span class="sm:hidden">🚪</span>
       </button>
       <button onclick="document.getElementById('fileInput').click()" class="btn-primary header-btn px-3 py-2 rounded-lg text-white font-semibold text-xs flex items-center gap-1.5 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -398,10 +373,10 @@
     </div>
   </header>
 
-  <!-- Main Layout: Sidebar + Map + Detail -->
+  <!-- Main Layout -->
   <div id="mainLayout" class="flex-1 flex overflow-hidden relative">
     
-    <!-- Sidebar Panel (Lista + Filtros) -->
+    <!-- Sidebar Panel -->
     <aside class="sidebar-panel glass border-r border-slate-700/50 flex flex-col relative z-10 view-list">
       <div class="p-3 border-b border-slate-700/50">
         <div class="grid grid-cols-2 gap-2 mb-2">
@@ -425,7 +400,7 @@
       </div>
       <div class="p-3 border-b border-slate-700/50 space-y-2">
         <div>
-          <input type="text" id="searchInput" placeholder="🔍 Buscar Asset ID, External ID..." class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          <input type="text" id="searchInput" placeholder=" Buscar Asset ID, External ID..." class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -453,9 +428,9 @@
       </div>
     </aside>
 
-    <!-- Map Panel -->
-    <main class="map-panel relative view-map">
-      <div id="map"></div>
+    <!-- Map Panel - FIX: altura explícita -->
+    <main class="map-panel relative view-map" style="flex: 1; min-height: 0; height: 100%;">
+      <div id="map" style="height: 100%; width: 100%;"></div>
       <div class="legend-box glass rounded-lg p-3 shadow-2xl">
         <div class="text-xs font-bold text-white mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Leyenda</div>
         <div class="space-y-1.5 text-xs">
@@ -488,14 +463,14 @@
 
   </div>
 
-  <!-- Mobile View Switcher (Bottom Bar) -->
+  <!-- Mobile View Switcher -->
   <div class="mobile-view-btns">
     <button class="mobile-view-btn active" onclick="switchView('list')" id="btnViewList">
-      <span class="icon">📋</span>
+      <span class="icon"></span>
       Lista
     </button>
     <button class="mobile-view-btn" onclick="switchView('map')" id="btnViewMap">
-      <span class="icon">🗺️</span>
+      <span class="icon">️</span>
       Mapa
     </button>
     <button class="mobile-view-btn" onclick="switchView('detail')" id="btnViewDetail">
@@ -526,8 +501,11 @@ function switchView(view) {
   document.querySelectorAll('.mobile-view-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('btnView' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
   
+  // FIX: Invalidar tamaño del mapa cuando cambia la vista
   if (view === 'map' && map) {
-    setTimeout(() => map.invalidateSize(), 100);
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
   }
 }
 
@@ -566,7 +544,10 @@ function handleLogin(event) {
     document.getElementById('mainContent').classList.remove('hidden');
     document.getElementById('headerUser').textContent = user.username + (user.role === 'admin' ? ' (Admin)' : '');
     updateAdminButtonVisibility();
-    initMap();
+    // FIX: Inicializar mapa después de que el contenido sea visible
+    setTimeout(() => {
+      initMap();
+    }, 100);
   } else {
     errorMsg.style.display = 'block';
     loginBox.classList.add('shake');
@@ -599,7 +580,7 @@ function renderUserList() {
       </div>
       <div class="flex items-center gap-2">
         <button onclick="openResetModal('${u.username}')" class="px-3 py-1.5 bg-orange-600/20 text-orange-400 hover:bg-orange-600/40 rounded text-xs font-medium transition cursor-pointer border border-orange-600/30">🔑 Resetear</button>
-        ${u.username !== currentLoggedInUser ? `<button onclick="openDeleteModal('${u.username}')" class="px-3 py-1.5 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded text-xs font-medium transition cursor-pointer border border-red-600/30">️ Eliminar</button>` : ''}
+        ${u.username !== currentLoggedInUser ? `<button onclick="openDeleteModal('${u.username}')" class="px-3 py-1.5 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded text-xs font-medium transition cursor-pointer border border-red-600/30">🗑️ Eliminar</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -626,7 +607,7 @@ function confirmResetPassword() {
   const msg = document.getElementById('resetMessage');
   msg.classList.remove('hidden');
 
-  if (!newPass || !confirmPass) { msg.textContent = '️ Complete todos los campos.'; msg.className = 'text-sm text-yellow-400'; return; }
+  if (!newPass || !confirmPass) { msg.textContent = '⚠️ Complete todos los campos.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass.length < 4) { msg.textContent = '⚠️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass !== confirmPass) { msg.textContent = '❌ Las contraseñas no coinciden.'; msg.className = 'text-sm text-red-400'; return; }
 
@@ -667,8 +648,8 @@ function handleAddUser() {
   const username = document.getElementById('newUsername').value.trim();
   const password = document.getElementById('newPassword').value;
   const role = document.getElementById('newRole').value;
-  if (!username || !password) { showToast('⚠️ Complete todos los campos', 'warning'); return; }
-  if (users.find(u => u.username === username)) { showToast('️ El usuario ya existe', 'warning'); return; }
+  if (!username || !password) { showToast('️ Complete todos los campos', 'warning'); return; }
+  if (users.find(u => u.username === username)) { showToast('⚠️ El usuario ya existe', 'warning'); return; }
   users.push({ username, password, role });
   saveUsersToStorage();
   document.getElementById('newUsername').value = '';
@@ -708,7 +689,7 @@ function handleChangeOwnPassword() {
   if (user.password !== currentPass) { msg.textContent = '❌ La contraseña actual es incorrecta.'; msg.className = 'text-sm text-red-400'; return; }
   if (newPass.length < 4) { msg.textContent = '⚠️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass !== confirmPass) { msg.textContent = '❌ Las contraseñas no coinciden.'; msg.className = 'text-sm text-red-400'; return; }
-  if (newPass === currentPass) { msg.textContent = '⚠️ Debe ser diferente a la actual.'; msg.className = 'text-sm text-yellow-400'; return; }
+  if (newPass === currentPass) { msg.textContent = '️ Debe ser diferente a la actual.'; msg.className = 'text-sm text-yellow-400'; return; }
 
   user.password = newPass;
   saveUsersToStorage();
@@ -751,7 +732,6 @@ function updateCharts() {
     }
   };
 
-  // 1. Tipos de Falla
   const errorCounts = {};
   data.forEach(row => { errorCounts[row.categoria.name] = (errorCounts[row.categoria.name] || 0) + 1; });
   const errorLabels = Object.keys(errorCounts).sort((a, b) => errorCounts[b] - errorCounts[a]);
@@ -764,7 +744,6 @@ function updateCharts() {
     options: { ...defaultOptions, cutout: '55%', plugins: { ...defaultOptions.plugins, legend: { position: 'right', labels: { color: chartColors.text, font: { size: 10 }, boxWidth: 12, padding: 8 } } } }
   });
 
-  // 2. Top 10 Localidades
   const locCounts = {};
   data.forEach(row => { const loc = row.localidad || 'Sin Localidad'; locCounts[loc] = (locCounts[loc] || 0) + 1; });
   const topLocs = Object.entries(locCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
@@ -775,7 +754,6 @@ function updateCharts() {
     options: { ...defaultOptions, indexAxis: 'y', plugins: { ...defaultOptions.plugins, legend: { display: false } }, scales: { x: { grid: { color: chartColors.grid }, ticks: { color: chartColors.text } }, y: { grid: { display: false }, ticks: { color: chartColors.text, font: { size: 10 } } } } }
   });
 
-  // 3. Fallas por Zona
   const zonaCounts = {};
   data.forEach(row => { const z = row.zona || 'Sin Zona'; zonaCounts[z] = (zonaCounts[z] || 0) + 1; });
   const zonaLabels = Object.keys(zonaCounts).sort();
@@ -788,7 +766,6 @@ function updateCharts() {
     options: { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: chartColors.text, font: { size: 10 } } }, y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.text } } } }
   });
 
-  // 4. Timeline
   const now = new Date();
   const dailyCounts = {};
   for (let i = 0; i < 30; i++) { const d = new Date(now); d.setDate(d.getDate() - i); dailyCounts[d.toISOString().split('T')[0]] = 0; }
@@ -811,7 +788,6 @@ function updateCharts() {
     options: { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: chartColors.text, font: { size: 9 }, maxRotation: 45 } }, y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.text }, beginAtZero: true } } }
   });
 
-  // 5. Fallas Críticas
   const criticasPorLoc = {};
   const tiposCriticos = ['Sin energía', 'OLC inaccesible', 'Equipo dañado'];
   data.forEach(row => {
@@ -949,16 +925,17 @@ let allData = [];
 let filteredData = [];
 let map, markers = [];
 let currentSelected = null;
+let mapInitialized = false;
 
 function categorizeError(msg, estado) {
   const m = msg.toLowerCase();
   const e = (estado || '').toLowerCase();
-  if (m.includes('no tiene energía') || m.includes('unexpected mains power loss')) return { name: 'Sin energía', color: '#ef4444', icon: '⚡' };
-  if (m.includes('no está accesible') || e === 'unreachable') return { name: 'OLC inaccesible', color: '#f97316', icon: '🔌' };
+  if (m.includes('no tiene energía') || m.includes('unexpected mains power loss')) return { name: 'Sin energía', color: '#ef4444', icon: '' };
+  if (m.includes('no está accesible') || e === 'unreachable') return { name: 'OLC inaccesible', color: '#f97316', icon: '' };
   if (m.includes('gps') && m.includes('roto')) return { name: 'GPS roto', color: '#eab308', icon: '📡' };
   if (m.includes('voltaje') || m.includes('corriente')) return { name: 'Voltaje/Corriente', color: '#a855f7', icon: '⚠️' };
   if (m.includes('driver') || m.includes('relé') || m.includes('regula')) return { name: 'Driver/Relé', color: '#ec4899', icon: '🔧' };
-  if (m.includes('puesta en servicio')) return { name: 'Puesta en servicio', color: '#06b6d4', icon: '⏱️' };
+  if (m.includes('puesta en servicio')) return { name: 'Puesta en servicio', color: '#06b6d4', icon: '️' };
   if (m.includes('fotocelda') || m.includes('componente de medición')) return { name: 'Sensor/Medición', color: '#8b5cf6', icon: '📏' };
   if (m.includes('configuración') || m.includes('coincidencia') || m.includes('segmento')) return { name: 'Error configuración', color: '#10b981', icon: '⚙️' };
   if (m.includes('ubicación') && m.includes('cambió')) return { name: 'Ubicación cambiada', color: '#6366f1', icon: '📍' };
@@ -1008,11 +985,41 @@ function parseCSV(text) {
 }
 
 function initMap() {
-  map = L.map('map', { zoomControl: true }).setView([-34.75, -56.0], 10);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map);
+  // FIX: Verificar que el contenedor del mapa tenga dimensiones
+  const mapContainer = document.getElementById('map');
+  if (!mapContainer || mapContainer.offsetWidth === 0 || mapContainer.offsetHeight === 0) {
+    console.log('Map container not ready, retrying...');
+    setTimeout(initMap, 200);
+    return;
+  }
+  
+  if (mapInitialized) {
+    // Si ya está inicializado, solo invalidar el tamaño
+    map.invalidateSize();
+    return;
+  }
+  
+  map = L.map('map', { 
+    zoomControl: true,
+    center: [-34.75, -56.0],
+    zoom: 10
+  });
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+    attribution: '© OpenStreetMap', 
+    maxZoom: 19 
+  }).addTo(map);
+  
+  mapInitialized = true;
+  
+  // FIX: Invalidar tamaño después de inicializar
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 100);
 }
 
 function renderMarkers(data) {
+  if (!map) return;
   markers.forEach(m => map.removeLayer(m));
   markers = [];
   const bounds = [];
@@ -1105,7 +1112,6 @@ function selectAsset(row) {
     </div>
   `;
   renderList();
-  // En móvil, cambiar a vista detalle
   if (window.innerWidth <= 1024) {
     switchView('detail');
   }
@@ -1120,7 +1126,9 @@ function closeDetailPanel() {
   }
 }
 function flyToAsset(lat, lng) { 
-  map.flyTo([lat, lng], 16, { duration: 1.5 });
+  if (map) {
+    map.flyTo([lat, lng], 16, { duration: 1.5 });
+  }
   if (window.innerWidth <= 1024) {
     switchView('map');
   }
@@ -1138,7 +1146,9 @@ function applyFilters() {
     const matchError = error === 'all' || row.categoria.name === error;
     return matchSearch && matchLocalidad && matchZona && matchError;
   });
-  updateStats(); renderMarkers(filteredData); renderList();
+  updateStats(); 
+  renderMarkers(filteredData); 
+  renderList();
 }
 
 function handleFile(event) {
@@ -1151,7 +1161,8 @@ function handleFile(event) {
     document.getElementById('fileName').textContent = file.name;
     document.getElementById('fileCount').textContent = `(${allData.length} registros)`;
     document.getElementById('fileInfo').classList.remove('hidden');
-    populateFilters(); applyFilters();
+    populateFilters(); 
+    applyFilters();
   };
   reader.readAsText(file);
   event.target.value = '';
@@ -1169,7 +1180,10 @@ window.onload = function() {
     document.getElementById('mainContent').classList.remove('hidden');
     document.getElementById('headerUser').textContent = currentLoggedInUser + (currentUserRole === 'admin' ? ' (Admin)' : '');
     updateAdminButtonVisibility();
-    initMap();
+    // FIX: Esperar a que el DOM esté listo antes de inicializar el mapa
+    setTimeout(() => {
+      initMap();
+    }, 200);
   }
 };
 </script>
