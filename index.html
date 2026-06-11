@@ -28,8 +28,6 @@
   .btn-pdf:hover { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
   .btn-charts { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); transition: all 0.3s; }
   .btn-charts:hover { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
-  .btn-cuenta { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); transition: all 0.3s; }
-  .btn-cuenta:hover { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(244, 63, 94, 0.4); }
   .zone-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
   .error-item { transition: all 0.2s; cursor: pointer; }
   .error-item:hover { background: rgba(59, 130, 246, 0.15); transform: translateX(4px); }
@@ -173,13 +171,13 @@
   @media (max-width: 1024px) {
     #mainLayout { flex-direction: column !important; }
     .sidebar-panel { width: 100% !important; max-height: 45vh; border-right: none !important; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
-    .map-panel { flex: 1 !important; min-height: 50vh; }
+    .map-panel { flex: 1 !important; min-height: 50vh; position: relative; }
     .detail-panel-mobile { width: 100% !important; max-height: 60vh; border-left: none !important; border-top: 1px solid rgba(148, 163, 184, 0.15); }
     .view-list { display: flex; }
-    .view-map { display: none; }
+    .view-map { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; }
     .view-detail { display: none; }
     body.show-map .view-list { display: none; }
-    body.show-map .view-map { display: flex; flex: 1; }
+    body.show-map .view-map { display: block; }
     body.show-map .view-detail { display: none; }
     body.show-detail .view-list { display: none; }
     body.show-detail .view-map { display: none; }
@@ -630,9 +628,14 @@ function switchView(view) {
   document.querySelectorAll('.mobile-view-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('btnView' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
   
+  // FIX: Cuando se muestra el mapa, invalidar tamaño y re-renderizar marcadores
   if (view === 'map' && map) {
     setTimeout(() => {
       map.invalidateSize();
+      // Re-renderizar marcadores para asegurar que se muestren
+      if (filteredData && filteredData.length > 0) {
+        renderMarkers(filteredData);
+      }
     }, 100);
   }
 }
@@ -890,7 +893,7 @@ function updateCharts() {
     options: { ...defaultOptions, cutout: '55%', plugins: { ...defaultOptions.plugins, legend: { position: 'right', labels: { color: chartColors.text, font: { size: 10 }, boxWidth: 12, padding: 8 } } } }
   });
 
-  // 2. Situaciones (usando el campo Situación - columna 12)
+  // 2. Situaciones
   const situacionCounts = {};
   data.forEach(row => { 
     const sit = row['Situación'] || 'Sin información';
@@ -1169,12 +1172,10 @@ function updateSituacionLegend(data) {
 }
 
 // Parser CSV corregido para el formato del archivo REPORTE_LUMINARIAS(3).csv
-// Columnas: 0:Created, 1:AssetID, 2:MensajeDeError, 3:FechaCreacion, 4:FechaModificacion, 5:Estado, 6:ExternalID, 7:Latitud, 8:Longitud, 9:FechaProgramada, 10:Localidad, 11:Zona, 12:Situacion, 13:NumeroCuenta
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   const result = [];
   
-  // Detectar si tiene header
   const firstLine = lines[0].toLowerCase();
   const hasHeader = firstLine.includes('created') && firstLine.includes('asset');
   const startIndex = hasHeader ? 1 : 0;
@@ -1190,7 +1191,6 @@ function parseCSV(text) {
     }
     row.push(current.trim());
     
-    // Necesitamos al menos 12 columnas (sin número de cuenta) o 14 (con número de cuenta)
     if (row.length >= 12) {
       const obj = {
         'Created': row[0] || '',
@@ -1198,15 +1198,15 @@ function parseCSV(text) {
         'Mensaje de error': row[2] || '',
         'Fecha creación': row[3] || '',
         'Fecha modificación': row[4] || '',
-        'Estado': row[5] || '',  // Broken, Unreachable, Inconsistent, Info
+        'Estado': row[5] || '',
         'External ID': row[6] || '',
         'Latitud': (row[7] || '').replace(',', '.'),
         'Longitud': (row[8] || '').replace(',', '.'),
         'Fecha programada': row[9] || '',
         'Localidad': row[10] || '',
         'Zona': row[11] || '',
-        'Situación': row[12] || '',  // Columna caida, Vandalizado NF, Hurto, etc.
-        'Número de Cuenta': row[13] || ''  // Número de cuenta del cliente
+        'Situación': row[12] || '',
+        'Número de Cuenta': row[13] || ''
       };
       obj.lat = parseFloat(obj.Latitud);
       obj.lng = parseFloat(obj.Longitud);
@@ -1267,7 +1267,9 @@ function renderMarkers(data) {
     markers.push(marker);
     bounds.push([row.lat, row.lng]);
   });
-  if (bounds.length > 0) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+  if (bounds.length > 0) {
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+  }
 }
 
 function populateFilters() {
