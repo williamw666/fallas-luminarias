@@ -41,6 +41,26 @@
   .leaflet-control-attribution { z-index: 998 !important; }
   .leaflet-top, .leaflet-bottom { z-index: 998 !important; }
   
+  /* 🔥 SELECTS CON FONDO NEGRO EN OPCIONES */
+  select {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    cursor: pointer;
+  }
+  select option {
+    background-color: #000000 !important;
+    color: #e2e8f0 !important;
+    padding: 8px;
+  }
+  select option:hover,
+  select option:checked {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+  }
+  select::-webkit-scrollbar { width: 8px; }
+  select::-webkit-scrollbar-track { background: #000000; }
+  select::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+  
   #loginOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -215,7 +235,7 @@
           <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña</label>
           <input type="password" id="password" class="login-input w-full" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
         </div>
-        <div id="errorMessage" class="error-message">️ Usuario o contraseña incorrectos</div>
+        <div id="errorMessage" class="error-message">⚠️ Usuario o contraseña incorrectos</div>
         <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">🔐 Ingresar al Sistema</button>
       </div>
     </form>
@@ -251,7 +271,7 @@
 <div id="resetPasswordModal" class="modal-overlay hidden">
   <div class="modal-content fade-in" style="max-width: 450px;">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-white"> Resetear Contraseña</h2>
+      <h2 class="text-xl font-bold text-white">🔑 Resetear Contraseña</h2>
       <button onclick="closeResetModal()" class="text-slate-400 hover:text-white transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -279,7 +299,7 @@
 <div id="deleteUserModal" class="modal-overlay hidden">
   <div class="modal-content fade-in" style="max-width: 450px;">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-white">🗑️ Eliminar Usuario</h2>
+      <h2 class="text-xl font-bold text-white">️ Eliminar Usuario</h2>
       <button onclick="closeDeleteModal()" class="text-slate-400 hover:text-white transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -335,7 +355,7 @@
 <div id="chartsModal" class="modal-overlay hidden">
   <div class="modal-content charts-modal fade-in">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-white flex items-center gap-2"> Análisis de Fallas</h2>
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">📊 Análisis de Fallas</h2>
       <button onclick="closeChartsModal()" class="text-slate-400 hover:text-white transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -352,7 +372,7 @@
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="chart-card">
-        <h3>🎯 Distribución por Tipo de Falla</h3>
+        <h3> Distribución por Tipo de Falla</h3>
         <div class="chart-container"><canvas id="chartErrorTypes"></canvas></div>
       </div>
       <div class="chart-card">
@@ -360,7 +380,7 @@
         <div class="chart-container"><canvas id="chartLocalidades"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>️ Fallas por Zona</h3>
+        <h3>🗺️ Fallas por Zona</h3>
         <div class="chart-container"><canvas id="chartZonas"></canvas></div>
       </div>
       <div class="chart-card">
@@ -368,7 +388,7 @@
         <div class="chart-container"><canvas id="chartTimeline"></canvas></div>
       </div>
       <div class="chart-card lg:col-span-2">
-        <h3>🔥 Fallas Críticas por Localidad</h3>
+        <h3> Fallas Críticas por Localidad</h3>
         <div class="chart-container tall"><canvas id="chartCriticas"></canvas></div>
       </div>
     </div>
@@ -494,7 +514,7 @@
       </div>
       
       <!-- Botón flotante de leyenda (Solo Móvil) -->
-      <button class="legend-fab" onclick="toggleLegendModal()" title="Ver leyenda">📋</button>
+      <button class="legend-fab" onclick="toggleLegendModal()" title="Ver leyenda"></button>
       
       <!-- Modal de leyenda (Solo Móvil) -->
       <div class="legend-modal" id="legendModal">
@@ -535,7 +555,7 @@
   <!-- Mobile View Switcher -->
   <div class="mobile-view-btns">
     <button class="mobile-view-btn active" onclick="switchView('list')" id="btnViewList">
-      <span class="icon">📋</span>
+      <span class="icon"></span>
       Lista
     </button>
     <button class="mobile-view-btn" onclick="switchView('map')" id="btnViewMap">
@@ -688,7 +708,7 @@ function confirmResetPassword() {
   const msg = document.getElementById('resetMessage');
   msg.classList.remove('hidden');
 
-  if (!newPass || !confirmPass) { msg.textContent = '⚠️ Complete todos los campos.'; msg.className = 'text-sm text-yellow-400'; return; }
+  if (!newPass || !confirmPass) { msg.textContent = '️ Complete todos los campos.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass.length < 4) { msg.textContent = '⚠️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass !== confirmPass) { msg.textContent = '❌ Las contraseñas no coinciden.'; msg.className = 'text-sm text-red-400'; return; }
 
@@ -729,7 +749,7 @@ function handleAddUser() {
   const username = document.getElementById('newUsername').value.trim();
   const password = document.getElementById('newPassword').value;
   const role = document.getElementById('newRole').value;
-  if (!username || !password) { showToast('️ Complete todos los campos', 'warning'); return; }
+  if (!username || !password) { showToast('⚠️ Complete todos los campos', 'warning'); return; }
   if (users.find(u => u.username === username)) { showToast('⚠️ El usuario ya existe', 'warning'); return; }
   users.push({ username, password, role });
   saveUsersToStorage();
