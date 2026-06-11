@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; overflow: hidden; }
   #map { height: 100%; width: 100%; position: relative; z-index: 0; }
@@ -23,9 +24,10 @@
   .btn-primary:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); }
   .btn-admin { background: linear-gradient(135deg, #10b981 0%, #059669 100%); transition: all 0.3s; }
   .btn-admin:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); }
-  /* Botón PDF en color ámbar/dorado (diferente al rojo de Salir) */
   .btn-pdf { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); transition: all 0.3s; }
   .btn-pdf:hover { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
+  .btn-charts { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); transition: all 0.3s; }
+  .btn-charts:hover { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
   .zone-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
   .error-item { transition: all 0.2s; cursor: pointer; }
   .error-item:hover { background: rgba(59, 130, 246, 0.15); transform: translateX(4px); }
@@ -69,6 +71,26 @@
     background: rgba(30, 41, 59, 0.98); border: 2px solid rgba(16, 185, 129, 0.3);
     border-radius: 16px; padding: 32px; max-width: 650px; width: 90%; max-height: 80vh; overflow-y: auto;
   }
+  
+  .charts-modal { max-width: 1200px; max-height: 90vh; border-color: rgba(139, 92, 246, 0.3); }
+  .chart-card { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 12px; padding: 20px; }
+  .chart-card h3 { color: #e2e8f0; font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .chart-container { position: relative; height: 280px; }
+  .chart-container.tall { height: 350px; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed; top: 20px; right: 20px; z-index: 999999;
+    padding: 16px 24px; border-radius: 12px; font-weight: 600; font-size: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+    max-width: 400px;
+  }
+  .toast-success { background: #059669; color: white; border: 1px solid #10b981; }
+  .toast-error { background: #dc2626; color: white; border: 1px solid #ef4444; }
+  .toast-warning { background: #d97706; color: white; border: 1px solid #f59e0b; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -91,7 +113,7 @@
           <input type="password" id="password" class="login-input w-full" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
         </div>
         <div id="errorMessage" class="error-message">⚠️ Usuario o contraseña incorrectos</div>
-        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">🔐 Ingresar al Sistema</button>
+        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6"> Ingresar al Sistema</button>
       </div>
     </form>
   </div>
@@ -101,7 +123,7 @@
 <div id="adminModal" class="modal-overlay hidden">
   <div class="modal-content fade-in">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-white"> Administrar Usuarios</h2>
+      <h2 class="text-xl font-bold text-white">👥 Administrar Usuarios</h2>
       <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -116,18 +138,149 @@
           <option value="user">Usuario</option>
           <option value="admin">Administrador</option>
         </select>
-        <button onclick="handleAddUser()" class="w-full btn-admin py-2 rounded-lg text-white font-semibold text-sm">➕ Agregar Usuario</button>
+        <button onclick="handleAddUser()" class="w-full btn-admin py-2 rounded-lg text-white font-semibold text-sm"> Agregar Usuario</button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Reset Password Modal (Admin resets another user's password) -->
+<div id="resetPasswordModal" class="modal-overlay hidden">
+  <div class="modal-content fade-in" style="max-width: 450px;">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-white">🔑 Resetear Contraseña</h2>
+      <button onclick="closeResetModal()" class="text-slate-400 hover:text-white transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div class="p-3 bg-orange-500/10 rounded-lg border border-orange-500/30">
+        <div class="text-xs text-orange-300">Usuario a resetear</div>
+        <div class="text-white font-semibold text-lg" id="resetTargetUser">-</div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Nueva contraseña para este usuario</label>
+        <input type="password" id="resetNewPass" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500" placeholder="Ingrese la nueva contraseña">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Confirmar nueva contraseña</label>
+        <input type="password" id="resetConfirmPass" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500" placeholder="Repita la nueva contraseña">
+      </div>
+      <div id="resetMessage" class="text-sm hidden"></div>
+      <button onclick="confirmResetPassword()" class="w-full py-2.5 rounded-lg text-white font-semibold text-sm" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">✅ Confirmar Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete User Modal -->
+<div id="deleteUserModal" class="modal-overlay hidden">
+  <div class="modal-content fade-in" style="max-width: 450px;">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-white">🗑️ Eliminar Usuario</h2>
+      <button onclick="closeDeleteModal()" class="text-slate-400 hover:text-white transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div class="p-4 bg-red-500/10 rounded-lg border border-red-500/30 text-center">
+        <div class="text-4xl mb-2">⚠️</div>
+        <div class="text-white font-semibold">¿Está seguro de eliminar al usuario?</div>
+        <div class="text-red-300 text-lg font-bold mt-1" id="deleteTargetUser">-</div>
+        <div class="text-slate-400 text-xs mt-2">Esta acción no se puede deshacer</div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-slate-600 hover:bg-slate-500 transition">Cancelar</button>
+        <button onclick="confirmDeleteUser()" class="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-red-600 hover:bg-red-500 transition">🗑️ Sí, Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Own Password Modal -->
+<div id="changePasswordModal" class="modal-overlay hidden">
+  <div class="modal-content fade-in" style="max-width: 450px;">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-white">🔑 Cambiar mi Contraseña</h2>
+      <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-white transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div class="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+        <div class="text-xs text-slate-400">Usuario actual</div>
+        <div class="text-white font-semibold" id="currentUserDisplay">-</div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña actual</label>
+        <input type="password" id="currentPassInput" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Ingrese su contraseña actual">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Nueva contraseña</label>
+        <input type="password" id="newPassInput" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Ingrese la nueva contraseña">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Confirmar nueva contraseña</label>
+        <input type="password" id="confirmPassInput" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" placeholder="Repita la nueva contraseña">
+      </div>
+      <div id="changePassMessage" class="text-sm hidden"></div>
+      <button onclick="handleChangeOwnPassword()" class="w-full btn-primary py-2.5 rounded-lg text-white font-semibold text-sm">✅ Cambiar Contraseña</button>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Modal -->
+<div id="chartsModal" class="modal-overlay hidden">
+  <div class="modal-content charts-modal fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">📊 Análisis de Fallas</h2>
+      <button onclick="closeChartsModal()" class="text-slate-400 hover:text-white transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="mb-4 p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="text-sm text-slate-300">
+          <span class="text-slate-400">Mostrando:</span>
+          <strong id="chartsFilterInfo" class="text-white ml-1">Todos los registros</strong>
+          <span class="text-slate-500 ml-2">(<span id="chartsTotalCount">0</span> fallas)</span>
+        </div>
+        <button onclick="updateCharts()" class="px-3 py-1 bg-violet-600/20 text-violet-300 hover:bg-violet-600/30 rounded text-xs font-medium transition">🔄 Actualizar</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="chart-card">
+        <h3>🎯 Distribución por Tipo de Falla</h3>
+        <div class="chart-container"><canvas id="chartErrorTypes"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>🏘️ Top 10 Localidades con más Fallas</h3>
+        <div class="chart-container"><canvas id="chartLocalidades"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>🗺️ Fallas por Zona</h3>
+        <div class="chart-container"><canvas id="chartZonas"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3> Evolución de Fallas (Últimos 30 días)</h3>
+        <div class="chart-container"><canvas id="chartTimeline"></canvas></div>
+      </div>
+      <div class="chart-card lg:col-span-2">
+        <h3>🔥 Fallas Críticas por Localidad</h3>
+        <div class="chart-container tall"><canvas id="chartCriticas"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
 
 <!-- Main Content -->
 <div id="mainContent" class="hidden h-screen flex flex-col">
   <header class="glass border-b border-slate-700/50 px-6 py-4 flex items-center justify-between z-20 relative flex-wrap gap-2">
     <div>
       <h1 class="text-xl font-bold text-white">Fallas de Luminarias de ALUMBRADO IMC</h1>
-      <p class="text-xs text-slate-400 mt-1">Reporte por zonas y localidades</p>
+      <p class="text-xs text-slate-400 mt-1">Reporte por zonas y localidades | Usuario: <span id="headerUser" class="text-blue-400"></span></p>
     </div>
     <div class="flex items-center gap-2 flex-wrap">
       <div id="fileInfo" class="text-xs text-slate-400 hidden">
@@ -137,16 +290,24 @@
       </div>
       <button id="adminBtn" onclick="openAdminModal()" class="btn-admin px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        Admin
+        Admin Usuarios
+      </button>
+      <button onclick="openChangePasswordModal()" class="px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        Cambiar Clave
+      </button>
+      <button onclick="openChartsModal()" class="btn-charts px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Gráficos
       </button>
       <button onclick="exportToPDF()" class="btn-pdf px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Exportar PDF
+        PDF
       </button>
-      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2"> Salir</button>
+      <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">🚪 Salir</button>
       <button onclick="document.getElementById('fileInput').click()" class="btn-primary px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        Agregar Planilla
+        Planilla
       </button>
       <input type="file" id="fileInput" accept=".csv" class="hidden" onchange="handleFile(event)">
     </div>
@@ -171,7 +332,7 @@
         <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipo de Falla</label><select id="errorFilter" class="w-full mt-1 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"><option value="all">Todas</option></select></div>
       </div>
       <div class="flex-1 scroll-y p-3 space-y-2" id="errorList">
-        <div class="text-center text-slate-500 mt-10 p-4"><div class="text-4xl mb-2"></div><p class="text-sm">Cargá una planilla CSV para ver las fallas</p></div>
+        <div class="text-center text-slate-500 mt-10 p-4"><div class="text-4xl mb-2">📋</div><p class="text-sm">Cargá una planilla CSV para ver las fallas</p></div>
       </div>
     </aside>
 
@@ -204,10 +365,22 @@
 </div>
 
 <script>
+// ================= TOAST NOTIFICATIONS =================
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+}
+
 // ================= USER MANAGEMENT =================
 let users = [];
 let currentLoggedInUser = null;
 let currentUserRole = null;
+let resetTargetUsername = null;
+let deleteTargetUsername = null;
 
 function initUsers() {
   const stored = localStorage.getItem('lum_users');
@@ -235,6 +408,7 @@ function handleLogin(event) {
     sessionStorage.setItem('lum_session_user', user.username);
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainContent').classList.remove('hidden');
+    document.getElementById('headerUser').textContent = user.username + (user.role === 'admin' ? ' (Admin)' : '');
     updateAdminButtonVisibility();
     initMap();
   } else {
@@ -250,74 +424,279 @@ function updateAdminButtonVisibility() {
 
 function logout() { sessionStorage.removeItem('lum_session_user'); location.reload(); }
 
+// ================= ADMIN MODAL =================
 function renderUserList() {
-  if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); closeAdminModal(); return; }
-  document.getElementById('userList').innerHTML = users.map(u => `
+  if (currentUserRole !== 'admin') return;
+  const listEl = document.getElementById('userList');
+  if (users.length === 0) {
+    listEl.innerHTML = '<div class="text-center text-slate-500 p-4">No hay usuarios registrados</div>';
+    return;
+  }
+  listEl.innerHTML = users.map(u => `
     <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
       <div>
-        <div class="text-white font-semibold flex items-center gap-2">${u.username} ${u.role === 'admin' ? '<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">Admin</span>' : '<span class="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">Usuario</span>'}</div>
-        ${u.username === currentLoggedInUser ? '<div class="text-xs text-green-400 mt-1">● Sesión activa</div>' : ''}
+        <div class="text-white font-semibold flex items-center gap-2">
+           ${u.username}
+          ${u.role === 'admin' ? '<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">Admin</span>' : '<span class="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">Usuario</span>'}
+        </div>
+        ${u.username === currentLoggedInUser ? '<div class="text-xs text-green-400 mt-1">● Sesión activa (usted)</div>' : ''}
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="handleChangePassword('${u.username}')" class="px-3 py-1 bg-yellow-600/20 text-yellow-400 hover:bg-yellow-600/30 rounded text-xs font-medium transition">Cambiar Clave</button>
-        <button onclick="handleResetPassword('${u.username}')" class="px-3 py-1 bg-orange-600/20 text-orange-400 hover:bg-orange-600/30 rounded text-xs font-medium transition">Resetear Clave</button>
-        ${u.username !== currentLoggedInUser ? `<button onclick="handleDeleteUser('${u.username}')" class="px-3 py-1 bg-red-600/20 text-red-400 hover:bg-red-600/30 rounded text-xs font-medium transition">Eliminar</button>` : ''}
+        <button onclick="openResetModal('${u.username}')" class="px-3 py-1.5 bg-orange-600/20 text-orange-400 hover:bg-orange-600/40 rounded text-xs font-medium transition cursor-pointer border border-orange-600/30"> Resetear</button>
+        ${u.username !== currentLoggedInUser ? `<button onclick="openDeleteModal('${u.username}')" class="px-3 py-1.5 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded text-xs font-medium transition cursor-pointer border border-red-600/30">🗑️ Eliminar</button>` : ''}
       </div>
     </div>
   `).join('');
 }
 
-function handleResetPassword(username) {
-  if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; }
-  const newPass = prompt(` Admin: Ingrese la nueva contraseña para "${username}":`);
-  if (newPass && newPass.trim() !== '') {
-    const user = users.find(u => u.username === username);
-    if (user) { user.password = newPass.trim(); saveUsersToStorage(); alert(`✅ Clave de "${username}" restablecida.`); renderUserList(); }
+// Reset Password Modal
+function openResetModal(username) {
+  if (currentUserRole !== 'admin') { showToast('No tiene permisos', 'error'); return; }
+  resetTargetUsername = username;
+  document.getElementById('resetTargetUser').textContent = username;
+  document.getElementById('resetNewPass').value = '';
+  document.getElementById('resetConfirmPass').value = '';
+  document.getElementById('resetMessage').classList.add('hidden');
+  document.getElementById('resetPasswordModal').classList.remove('hidden');
+}
+
+function closeResetModal() {
+  document.getElementById('resetPasswordModal').classList.add('hidden');
+  resetTargetUsername = null;
+}
+
+function confirmResetPassword() {
+  const newPass = document.getElementById('resetNewPass').value;
+  const confirmPass = document.getElementById('resetConfirmPass').value;
+  const msg = document.getElementById('resetMessage');
+  msg.classList.remove('hidden');
+
+  if (!newPass || !confirmPass) {
+    msg.textContent = '⚠️ Complete todos los campos.';
+    msg.className = 'text-sm text-yellow-400';
+    return;
+  }
+  if (newPass.length < 4) {
+    msg.textContent = '️ Mínimo 4 caracteres.';
+    msg.className = 'text-sm text-yellow-400';
+    return;
+  }
+  if (newPass !== confirmPass) {
+    msg.textContent = '❌ Las contraseñas no coinciden.';
+    msg.className = 'text-sm text-red-400';
+    return;
+  }
+
+  const user = users.find(u => u.username === resetTargetUsername);
+  if (user) {
+    user.password = newPass;
+    saveUsersToStorage();
+    showToast(`✅ Contraseña de "${resetTargetUsername}" reseteada exitosamente`, 'success');
+    closeResetModal();
+    renderUserList();
   }
 }
 
-function handleChangePassword(username) {
-  if (username === currentLoggedInUser) {
-    const oldPass = prompt("🔒 Ingrese su contraseña actual:");
-    if (!oldPass) return;
-    const newPass = prompt("🔑 Ingrese la nueva contraseña:");
-    if (!newPass || newPass.trim() === '') return;
-    const user = users.find(u => u.username === username);
-    if (user && user.password === oldPass) { user.password = newPass.trim(); saveUsersToStorage(); alert("✅ Contraseña actualizada."); renderUserList(); }
-    else { alert("❌ Contraseña actual incorrecta."); }
-  } else { if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; } handleResetPassword(username); }
+// Delete User Modal
+function openDeleteModal(username) {
+  if (currentUserRole !== 'admin') { showToast('No tiene permisos', 'error'); return; }
+  if (username === currentLoggedInUser) { showToast('No puede eliminar su propia cuenta', 'error'); return; }
+  deleteTargetUsername = username;
+  document.getElementById('deleteTargetUser').textContent = username;
+  document.getElementById('deleteUserModal').classList.remove('hidden');
 }
 
-function handleDeleteUser(username) {
-  if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; }
-  if (confirm(`⚠️ ¿Eliminar al usuario "${username}"?`)) { users = users.filter(u => u.username !== username); saveUsersToStorage(); renderUserList(); }
+function closeDeleteModal() {
+  document.getElementById('deleteUserModal').classList.add('hidden');
+  deleteTargetUsername = null;
 }
 
+function confirmDeleteUser() {
+  if (!deleteTargetUsername) return;
+  users = users.filter(u => u.username !== deleteTargetUsername);
+  saveUsersToStorage();
+  showToast(`️ Usuario "${deleteTargetUsername}" eliminado`, 'success');
+  closeDeleteModal();
+  renderUserList();
+}
+
+// Add User
 function handleAddUser() {
-  if (currentUserRole !== 'admin') { alert('⚠️ No tiene permisos.'); return; }
+  if (currentUserRole !== 'admin') { showToast('No tiene permisos', 'error'); return; }
   const username = document.getElementById('newUsername').value.trim();
   const password = document.getElementById('newPassword').value;
   const role = document.getElementById('newRole').value;
-  if (!username || !password) { alert("️ Complete todos los campos."); return; }
-  if (users.find(u => u.username === username)) { alert("⚠️ El usuario ya existe."); return; }
+  if (!username || !password) { showToast('⚠️ Complete todos los campos', 'warning'); return; }
+  if (users.find(u => u.username === username)) { showToast('⚠️ El usuario ya existe', 'warning'); return; }
   users.push({ username, password, role });
   saveUsersToStorage();
   document.getElementById('newUsername').value = '';
   document.getElementById('newPassword').value = '';
   renderUserList();
-  alert(`✅ Usuario "${username}" agregado.`);
+  showToast(`✅ Usuario "${username}" agregado`, 'success');
 }
 
-function openAdminModal() { if (currentUserRole !== 'admin') { alert('⚠️ Solo administradores.'); return; } renderUserList(); document.getElementById('adminModal').classList.remove('hidden'); }
+function openAdminModal() { 
+  if (currentUserRole !== 'admin') { showToast('Solo administradores', 'error'); return; } 
+  renderUserList(); 
+  document.getElementById('adminModal').classList.remove('hidden'); 
+}
 function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+
+// Change Own Password
+function openChangePasswordModal() {
+  document.getElementById('currentUserDisplay').textContent = currentLoggedInUser;
+  document.getElementById('currentPassInput').value = '';
+  document.getElementById('newPassInput').value = '';
+  document.getElementById('confirmPassInput').value = '';
+  document.getElementById('changePassMessage').classList.add('hidden');
+  document.getElementById('changePasswordModal').classList.remove('hidden');
+}
+
+function closeChangePasswordModal() { document.getElementById('changePasswordModal').classList.add('hidden'); }
+
+function handleChangeOwnPassword() {
+  const currentPass = document.getElementById('currentPassInput').value;
+  const newPass = document.getElementById('newPassInput').value;
+  const confirmPass = document.getElementById('confirmPassInput').value;
+  const msg = document.getElementById('changePassMessage');
+  msg.classList.remove('hidden');
+
+  if (!currentPass || !newPass || !confirmPass) { msg.textContent = '⚠️ Complete todos los campos.'; msg.className = 'text-sm text-yellow-400'; return; }
+  const user = users.find(u => u.username === currentLoggedInUser);
+  if (!user) { msg.textContent = '❌ Error: usuario no encontrado.'; msg.className = 'text-sm text-red-400'; return; }
+  if (user.password !== currentPass) { msg.textContent = '❌ La contraseña actual es incorrecta.'; msg.className = 'text-sm text-red-400'; return; }
+  if (newPass.length < 4) { msg.textContent = '️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
+  if (newPass !== confirmPass) { msg.textContent = '❌ Las contraseñas no coinciden.'; msg.className = 'text-sm text-red-400'; return; }
+  if (newPass === currentPass) { msg.textContent = '⚠️ Debe ser diferente a la actual.'; msg.className = 'text-sm text-yellow-400'; return; }
+
+  user.password = newPass;
+  saveUsersToStorage();
+  msg.textContent = '✅ Contraseña actualizada.';
+  msg.className = 'text-sm text-green-400';
+  showToast('✅ Contraseña cambiada exitosamente', 'success');
+  setTimeout(() => closeChangePasswordModal(), 1500);
+}
+
+// ================= CHARTS =================
+let charts = {};
+function openChartsModal() {
+  if (filteredData.length === 0) { showToast('Cargue una planilla primero', 'warning'); return; }
+  document.getElementById('chartsModal').classList.remove('hidden');
+  setTimeout(() => updateCharts(), 100);
+}
+function closeChartsModal() { document.getElementById('chartsModal').classList.add('hidden'); }
+
+function updateCharts() {
+  const data = filteredData;
+  const filters = [];
+  const locFilter = document.getElementById('localidadFilter').value;
+  const zonaFilter = document.getElementById('zonaFilter').value;
+  const errorFilter = document.getElementById('errorFilter').value;
+  if (locFilter !== 'all') filters.push(`Localidad: ${locFilter}`);
+  if (zonaFilter !== 'all') filters.push(`Zona: ${zonaFilter}`);
+  if (errorFilter !== 'all') filters.push(`Tipo: ${errorFilter}`);
+  document.getElementById('chartsFilterInfo').textContent = filters.length > 0 ? filters.join(' | ') : 'Todos los registros';
+  document.getElementById('chartsTotalCount').textContent = data.length;
+
+  Object.values(charts).forEach(c => c && c.destroy());
+  charts = {};
+
+  const chartColors = { grid: 'rgba(148, 163, 184, 0.1)', text: '#94a3b8', border: 'rgba(148, 163, 184, 0.2)' };
+  const defaultOptions = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: chartColors.text, font: { size: 11 } } },
+      tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.95)', titleColor: '#fff', bodyColor: '#e2e8f0', borderColor: chartColors.border, borderWidth: 1, padding: 10, cornerRadius: 8 }
+    }
+  };
+
+  // 1. Tipos de Falla
+  const errorCounts = {};
+  data.forEach(row => { errorCounts[row.categoria.name] = (errorCounts[row.categoria.name] || 0) + 1; });
+  const errorLabels = Object.keys(errorCounts).sort((a, b) => errorCounts[b] - errorCounts[a]);
+  const errorValues = errorLabels.map(l => errorCounts[l]);
+  const errorColors = errorLabels.map(l => { const found = data.find(d => d.categoria.name === l); return found ? found.categoria.color : '#64748b'; });
+
+  charts.errorTypes = new Chart(document.getElementById('chartErrorTypes'), {
+    type: 'doughnut',
+    data: { labels: errorLabels, datasets: [{ data: errorValues, backgroundColor: errorColors, borderColor: 'rgba(15, 23, 42, 0.8)', borderWidth: 2 }] },
+    options: { ...defaultOptions, cutout: '55%', plugins: { ...defaultOptions.plugins, legend: { position: 'right', labels: { color: chartColors.text, font: { size: 10 }, boxWidth: 12, padding: 8 } } } }
+  });
+
+  // 2. Top 10 Localidades
+  const locCounts = {};
+  data.forEach(row => { const loc = row.localidad || 'Sin Localidad'; locCounts[loc] = (locCounts[loc] || 0) + 1; });
+  const topLocs = Object.entries(locCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+  charts.localidades = new Chart(document.getElementById('chartLocalidades'), {
+    type: 'bar',
+    data: { labels: topLocs.map(l => l[0]), datasets: [{ label: 'Cantidad de Fallas', data: topLocs.map(l => l[1]), backgroundColor: 'rgba(59, 130, 246, 0.7)', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 1, borderRadius: 4 }] },
+    options: { ...defaultOptions, indexAxis: 'y', plugins: { ...defaultOptions.plugins, legend: { display: false } }, scales: { x: { grid: { color: chartColors.grid }, ticks: { color: chartColors.text } }, y: { grid: { display: false }, ticks: { color: chartColors.text, font: { size: 10 } } } } }
+  });
+
+  // 3. Fallas por Zona
+  const zonaCounts = {};
+  data.forEach(row => { const z = row.zona || 'Sin Zona'; zonaCounts[z] = (zonaCounts[z] || 0) + 1; });
+  const zonaLabels = Object.keys(zonaCounts).sort();
+  const zonaValues = zonaLabels.map(z => zonaCounts[z]);
+  const zonaColors = zonaLabels.map((z, i) => { const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b']; return colors[i % colors.length]; });
+
+  charts.zonas = new Chart(document.getElementById('chartZonas'), {
+    type: 'bar',
+    data: { labels: zonaLabels, datasets: [{ label: 'Fallas', data: zonaValues, backgroundColor: zonaColors.map(c => c + 'b3'), borderColor: zonaColors, borderWidth: 1, borderRadius: 4 }] },
+    options: { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: chartColors.text, font: { size: 10 } } }, y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.text } } } }
+  });
+
+  // 4. Timeline
+  const now = new Date();
+  const dailyCounts = {};
+  for (let i = 0; i < 30; i++) { const d = new Date(now); d.setDate(d.getDate() - i); dailyCounts[d.toISOString().split('T')[0]] = 0; }
+  data.forEach(row => {
+    const fecha = row['Fecha creación'] || row['Created'] || '';
+    let dateStr = '';
+    if (fecha.includes('T')) { dateStr = fecha.split('T')[0]; }
+    else if (fecha.includes('/')) {
+      const parts = fecha.split(' ')[0].split('/');
+      if (parts.length === 3) { let year = parts[2]; if (year.length === 2) year = '20' + year; dateStr = `${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`; }
+    }
+    if (dailyCounts.hasOwnProperty(dateStr)) dailyCounts[dateStr]++;
+  });
+  const timelineLabels = Object.keys(dailyCounts).sort();
+  const timelineValues = timelineLabels.map(d => dailyCounts[d]);
+
+  charts.timeline = new Chart(document.getElementById('chartTimeline'), {
+    type: 'line',
+    data: { labels: timelineLabels.map(d => { const date = new Date(d); return date.toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit' }); }), datasets: [{ label: 'Fallas reportadas', data: timelineValues, borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.15)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#8b5cf6', pointBorderColor: '#fff', pointBorderWidth: 1 }] },
+    options: { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: chartColors.text, font: { size: 9 }, maxRotation: 45 } }, y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.text }, beginAtZero: true } } }
+  });
+
+  // 5. Fallas Críticas
+  const criticasPorLoc = {};
+  const tiposCriticos = ['Sin energía', 'OLC inaccesible', 'Equipo dañado'];
+  data.forEach(row => {
+    if (!tiposCriticos.includes(row.categoria.name)) return;
+    const loc = row.localidad || 'Sin Localidad';
+    if (!criticasPorLoc[loc]) criticasPorLoc[loc] = {};
+    criticasPorLoc[loc][row.categoria.name] = (criticasPorLoc[loc][row.categoria.name] || 0) + 1;
+  });
+  const topCriticas = Object.entries(criticasPorLoc).map(([loc, tipos]) => [loc, Object.values(tipos).reduce((a, b) => a + b, 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const criticasLabels = topCriticas.map(t => t[0]);
+  const criticasDatasets = tiposCriticos.map(tipo => {
+    const color = data.find(d => d.categoria.name === tipo)?.categoria.color || '#64748b';
+    return { label: tipo, data: criticasLabels.map(loc => (criticasPorLoc[loc] && criticasPorLoc[loc][tipo]) || 0), backgroundColor: color + 'cc', borderColor: color, borderWidth: 1, borderRadius: 2 };
+  });
+
+  charts.criticas = new Chart(document.getElementById('chartCriticas'), {
+    type: 'bar',
+    data: { labels: criticasLabels, datasets: criticasDatasets },
+    options: { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { position: 'top', labels: { color: chartColors.text, font: { size: 11 }, boxWidth: 14 } } }, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: chartColors.text, font: { size: 10 } } }, y: { stacked: true, grid: { color: chartColors.grid }, ticks: { color: chartColors.text }, beginAtZero: true, title: { display: true, text: 'Cantidad de fallas críticas', color: chartColors.text } } } }
+  });
+}
 
 // ================= PDF EXPORT =================
 async function exportToPDF() {
-  if (filteredData.length === 0) {
-    alert('⚠️ No hay datos para exportar. Cargue una planilla primero.');
-    return;
-  }
-
+  if (filteredData.length === 0) { showToast('No hay datos para exportar', 'warning'); return; }
   const btn = event.target.closest('button');
   const originalText = btn.innerHTML;
   btn.innerHTML = '⏳ Generando...';
@@ -327,50 +706,39 @@ async function exportToPDF() {
     const now = new Date();
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('landscape', 'mm', 'a4');
-    
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 10;
     let yPosition = margin;
 
-    // Header
     pdf.setFillColor(30, 41, 59);
     pdf.rect(0, 0, pageWidth, 25, 'F');
     pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(18);
-    pdf.setFont(undefined, 'bold');
+    pdf.setFontSize(18); pdf.setFont(undefined, 'bold');
     pdf.text('Fallas de Luminarias - ALUMBRADO IMC', margin, 12);
-    pdf.setFontSize(9);
-    pdf.setFont(undefined, 'normal');
+    pdf.setFontSize(9); pdf.setFont(undefined, 'normal');
     pdf.text(`Reporte: ${now.toLocaleDateString('es-UY')} ${now.toLocaleTimeString('es-UY')} | Usuario: ${currentLoggedInUser || 'admin'}`, margin, 20);
 
     yPosition = 35;
-
-    // Stats boxes
     const stats = [
       { label: 'Total Fallas', value: filteredData.length, color: [59, 130, 246] },
       { label: 'Localidades', value: new Set(filteredData.map(d => d.localidad)).size, color: [6, 182, 212] },
       { label: 'Sin Energía', value: filteredData.filter(d => d.categoria.name === 'Sin energía').length, color: [239, 68, 68] },
       { label: 'OLC Inaccesible', value: filteredData.filter(d => d.categoria.name === 'OLC inaccesible').length, color: [245, 158, 11] }
     ];
-
     const boxWidth = (pageWidth - margin * 2 - 10 * 3) / 4;
     stats.forEach((stat, i) => {
       const x = margin + i * (boxWidth + 10);
       pdf.setFillColor(stat.color[0], stat.color[1], stat.color[2]);
       pdf.roundedRect(x, yPosition, boxWidth, 20, 2, 2, 'F');
       pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(16);
-      pdf.setFont(undefined, 'bold');
+      pdf.setFontSize(16); pdf.setFont(undefined, 'bold');
       pdf.text(String(stat.value), x + boxWidth / 2, yPosition + 9, { align: 'center' });
-      pdf.setFontSize(7);
-      pdf.setFont(undefined, 'normal');
+      pdf.setFontSize(7); pdf.setFont(undefined, 'normal');
       pdf.text(stat.label.toUpperCase(), x + boxWidth / 2, yPosition + 16, { align: 'center' });
     });
 
     yPosition += 30;
-
-    // Filters info
     const filters = [];
     const locFilter = document.getElementById('localidadFilter').value;
     const zonaFilter = document.getElementById('zonaFilter').value;
@@ -378,131 +746,61 @@ async function exportToPDF() {
     if (locFilter !== 'all') filters.push(`Localidad: ${locFilter}`);
     if (zonaFilter !== 'all') filters.push(`Zona: ${zonaFilter}`);
     if (errorFilter !== 'all') filters.push(`Tipo: ${errorFilter}`);
-    if (filters.length > 0) {
-      pdf.setTextColor(100, 116, 139);
-      pdf.setFontSize(8);
-      pdf.text(`Filtros: ${filters.join(' | ')}`, margin, yPosition);
-      yPosition += 8;
-    }
+    if (filters.length > 0) { pdf.setTextColor(100, 116, 139); pdf.setFontSize(8); pdf.text(`Filtros: ${filters.join(' | ')}`, margin, yPosition); yPosition += 8; }
 
-    // Table header
     pdf.setFillColor(30, 41, 59);
     pdf.rect(margin, yPosition, pageWidth - margin * 2, 8, 'F');
     pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(7);
-    pdf.setFont(undefined, 'bold');
-    
+    pdf.setFontSize(7); pdf.setFont(undefined, 'bold');
     const colWidths = [10, 25, 45, 30, 20, 30, 70, 25];
     const headers = ['#', 'Asset ID', 'External ID', 'Localidad', 'Zona', 'Tipo Falla', 'Mensaje de Error', 'Fecha'];
     let xPos = margin;
-    headers.forEach((h, i) => {
-      pdf.text(h, xPos + 2, yPosition + 5);
-      xPos += colWidths[i];
-    });
-
+    headers.forEach((h, i) => { pdf.text(h, xPos + 2, yPosition + 5); xPos += colWidths[i]; });
     yPosition += 8;
-
-    // Table rows
-    pdf.setFont(undefined, 'normal');
-    pdf.setFontSize(6.5);
-    
+    pdf.setFont(undefined, 'normal'); pdf.setFontSize(6.5);
     const maxRowsPerPage = 35;
     let rowCount = 0;
     let currentPage = 1;
 
     filteredData.forEach((row, idx) => {
       if (rowCount >= maxRowsPerPage) {
-        pdf.setTextColor(148, 163, 184);
-        pdf.setFontSize(7);
+        pdf.setTextColor(148, 163, 184); pdf.setFontSize(7);
         pdf.text(`Página ${currentPage} | ALUMBRADO IMC`, pageWidth / 2, pageHeight - 8, { align: 'center' });
-        
-        pdf.addPage();
-        currentPage++;
-        yPosition = margin;
-        rowCount = 0;
-
-        pdf.setFillColor(30, 41, 59);
-        pdf.rect(0, 0, pageWidth, 15, 'F');
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(10);
-        pdf.setFont(undefined, 'bold');
+        pdf.addPage(); currentPage++; yPosition = margin; rowCount = 0;
+        pdf.setFillColor(30, 41, 59); pdf.rect(0, 0, pageWidth, 15, 'F');
+        pdf.setTextColor(255, 255, 255); pdf.setFontSize(10); pdf.setFont(undefined, 'bold');
         pdf.text('Fallas de Luminarias - ALUMBRADO IMC', margin, 10);
         yPosition = 22;
-
-        pdf.setFillColor(30, 41, 59);
-        pdf.rect(margin, yPosition, pageWidth - margin * 2, 8, 'F');
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(7);
-        pdf.setFont(undefined, 'bold');
+        pdf.setFillColor(30, 41, 59); pdf.rect(margin, yPosition, pageWidth - margin * 2, 8, 'F');
+        pdf.setTextColor(255, 255, 255); pdf.setFontSize(7); pdf.setFont(undefined, 'bold');
         xPos = margin;
-        headers.forEach((h, i) => {
-          pdf.text(h, xPos + 2, yPosition + 5);
-          xPos += colWidths[i];
-        });
-        yPosition += 8;
-        pdf.setFont(undefined, 'normal');
-        pdf.setFontSize(6.5);
+        headers.forEach((h, i) => { pdf.text(h, xPos + 2, yPosition + 5); xPos += colWidths[i]; });
+        yPosition += 8; pdf.setFont(undefined, 'normal'); pdf.setFontSize(6.5);
       }
-
-      if (idx % 2 === 0) {
-        pdf.setFillColor(248, 250, 252);
-        pdf.rect(margin, yPosition, pageWidth - margin * 2, 6, 'F');
-      }
-
-      const colorMap = {
-        'Sin energía': [239, 68, 68],
-        'OLC inaccesible': [249, 115, 22],
-        'GPS roto': [234, 179, 8],
-        'Voltaje/Corriente': [168, 85, 247],
-        'Driver/Relé': [236, 72, 153],
-        'Puesta en servicio': [6, 182, 212],
-        'Error configuración': [16, 185, 129],
-        'Ubicación cambiada': [99, 102, 241],
-        'Otros': [100, 116, 139]
-      };
+      if (idx % 2 === 0) { pdf.setFillColor(248, 250, 252); pdf.rect(margin, yPosition, pageWidth - margin * 2, 6, 'F'); }
+      const colorMap = { 'Sin energía': [239, 68, 68], 'OLC inaccesible': [249, 115, 22], 'GPS roto': [234, 179, 8], 'Voltaje/Corriente': [168, 85, 247], 'Driver/Relé': [236, 72, 153], 'Puesta en servicio': [6, 182, 212], 'Error configuración': [16, 185, 129], 'Ubicación cambiada': [99, 102, 241], 'Otros': [100, 116, 139] };
       const errColor = colorMap[row.categoria.name] || [100, 116, 139];
-
-      pdf.setTextColor(30, 41, 59);
-      xPos = margin;
-      
+      pdf.setTextColor(30, 41, 59); xPos = margin;
       pdf.text(String(idx + 1), xPos + 2, yPosition + 4); xPos += colWidths[0];
-      pdf.setFontSize(5.5);
-      pdf.text(String(row['Asset ID']), xPos + 1, yPosition + 4); xPos += colWidths[1];
+      pdf.setFontSize(5.5); pdf.text(String(row['Asset ID']), xPos + 1, yPosition + 4); xPos += colWidths[1];
       pdf.text(String(row['External ID']), xPos + 1, yPosition + 4); xPos += colWidths[2];
-      pdf.setFontSize(6.5);
-      pdf.text(String(row.localidad), xPos + 1, yPosition + 4); xPos += colWidths[3];
+      pdf.setFontSize(6.5); pdf.text(String(row.localidad), xPos + 1, yPosition + 4); xPos += colWidths[3];
       pdf.text(String(row.zona), xPos + 1, yPosition + 4); xPos += colWidths[4];
-      
-      pdf.setTextColor(errColor[0], errColor[1], errColor[2]);
-      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(errColor[0], errColor[1], errColor[2]); pdf.setFont(undefined, 'bold');
       pdf.text(row.categoria.name, xPos + 1, yPosition + 4); xPos += colWidths[5];
-      pdf.setFont(undefined, 'normal');
-      
-      pdf.setTextColor(30, 41, 59);
-      pdf.setFontSize(5.5);
-      const errorMsg = row['Mensaje de error'].substring(0, 55);
-      pdf.text(errorMsg, xPos + 1, yPosition + 4); xPos += colWidths[6];
-      pdf.setFontSize(6.5);
-      const fecha = (row['Fecha creación'] || '-').split('T')[0];
-      pdf.text(fecha, xPos + 1, yPosition + 4);
-
-      yPosition += 6;
-      rowCount++;
+      pdf.setFont(undefined, 'normal'); pdf.setTextColor(30, 41, 59); pdf.setFontSize(5.5);
+      pdf.text(row['Mensaje de error'].substring(0, 55), xPos + 1, yPosition + 4); xPos += colWidths[6];
+      pdf.setFontSize(6.5); pdf.text((row['Fecha creación'] || '-').split('T')[0], xPos + 1, yPosition + 4);
+      yPosition += 6; rowCount++;
     });
-
-    pdf.setTextColor(148, 163, 184);
-    pdf.setFontSize(7);
+    pdf.setTextColor(148, 163, 184); pdf.setFontSize(7);
     pdf.text(`Página ${currentPage} | Total: ${filteredData.length} registros | ALUMBRADO IMC`, pageWidth / 2, pageHeight - 8, { align: 'center' });
-
-    const fileName = `Fallas_Luminarias_IMC_${now.toISOString().split('T')[0]}.pdf`;
-    pdf.save(fileName);
-
+    pdf.save(`Fallas_Luminarias_IMC_${now.toISOString().split('T')[0]}.pdf`);
   } catch (error) {
     console.error('Error generating PDF:', error);
-    alert('❌ Error al generar el PDF: ' + error.message);
+    showToast(' Error al generar el PDF', 'error');
   } finally {
-    btn.innerHTML = originalText;
-    btn.disabled = false;
+    btn.innerHTML = originalText; btn.disabled = false;
   }
 }
 
@@ -517,8 +815,8 @@ function categorizeError(msg, estado) {
   const e = (estado || '').toLowerCase();
   if (m.includes('no tiene energía') || m.includes('unexpected mains power loss')) return { name: 'Sin energía', color: '#ef4444', icon: '⚡' };
   if (m.includes('no está accesible') || e === 'unreachable') return { name: 'OLC inaccesible', color: '#f97316', icon: '🔌' };
-  if (m.includes('gps') && m.includes('roto')) return { name: 'GPS roto', color: '#eab308', icon: '📡' };
-  if (m.includes('voltaje') || m.includes('corriente')) return { name: 'Voltaje/Corriente', color: '#a855f7', icon: '⚠️' };
+  if (m.includes('gps') && m.includes('roto')) return { name: 'GPS roto', color: '#eab308', icon: '' };
+  if (m.includes('voltaje') || m.includes('corriente')) return { name: 'Voltaje/Corriente', color: '#a855f7', icon: '️' };
   if (m.includes('driver') || m.includes('relé') || m.includes('regula')) return { name: 'Driver/Relé', color: '#ec4899', icon: '🔧' };
   if (m.includes('puesta en servicio')) return { name: 'Puesta en servicio', color: '#06b6d4', icon: '⏱️' };
   if (m.includes('fotocelda') || m.includes('componente de medición')) return { name: 'Sensor/Medición', color: '#8b5cf6', icon: '📏' };
@@ -653,7 +951,7 @@ function selectAsset(row) {
           <div><div class="text-xs text-slate-400">Latitud</div><div class="font-mono text-white">${row.lat?.toFixed(6) || '-'}</div></div>
           <div><div class="text-xs text-slate-400">Longitud</div><div class="font-mono text-white">${row.lng?.toFixed(6) || '-'}</div></div>
         </div>
-        <button onclick="flyToAsset(${row.lat}, ${row.lng})" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg transition">📍 Ver en mapa</button>
+        <button onclick="flyToAsset(${row.lat}, ${row.lng})" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg transition"> Ver en mapa</button>
       </div>
       <div class="glass rounded-lg p-4">
         <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Fechas</div>
@@ -713,6 +1011,7 @@ window.onload = function() {
   if (currentLoggedInUser) {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainContent').classList.remove('hidden');
+    document.getElementById('headerUser').textContent = currentLoggedInUser + (currentUserRole === 'admin' ? ' (Admin)' : '');
     updateAdminButtonVisibility();
     initMap();
   }
