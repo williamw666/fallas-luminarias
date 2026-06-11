@@ -90,7 +90,6 @@
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-  /* Leyenda - Solo visible en PC */
   .legend-box { 
     position: absolute; 
     bottom: 20px; 
@@ -100,7 +99,6 @@
     display: block;
   }
   
-  /* Botón flotante de leyenda para móvil */
   .legend-fab {
     display: none;
     position: absolute;
@@ -125,7 +123,6 @@
     transform: scale(1.1);
   }
   
-  /* Modal de leyenda para móvil */
   .legend-modal {
     display: none;
     position: fixed;
@@ -144,7 +141,6 @@
     animation: fadeIn 0.3s ease-in;
   }
 
-  /* RESPONSIVE */
   @media (max-width: 1024px) {
     #mainLayout { flex-direction: column !important; }
     .sidebar-panel { width: 100% !important; max-height: 45vh; border-right: none !important; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
@@ -165,8 +161,6 @@
     #headerSubtitle { font-size: 10px !important; }
     .header-btn { padding: 8px 10px !important; font-size: 11px !important; }
     .header-btn svg { width: 14px !important; height: 14px !important; }
-    
-    /* Ocultar leyenda en móvil, mostrar FAB */
     .legend-box { display: none !important; }
     .legend-fab { display: flex !important; }
   }
@@ -221,8 +215,8 @@
           <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña</label>
           <input type="password" id="password" class="login-input w-full" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
         </div>
-        <div id="errorMessage" class="error-message">⚠️ Usuario o contraseña incorrectos</div>
-        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6"> Ingresar al Sistema</button>
+        <div id="errorMessage" class="error-message">️ Usuario o contraseña incorrectos</div>
+        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">🔐 Ingresar al Sistema</button>
       </div>
     </form>
   </div>
@@ -257,7 +251,7 @@
 <div id="resetPasswordModal" class="modal-overlay hidden">
   <div class="modal-content fade-in" style="max-width: 450px;">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-white">🔑 Resetear Contraseña</h2>
+      <h2 class="text-xl font-bold text-white"> Resetear Contraseña</h2>
       <button onclick="closeResetModal()" class="text-slate-400 hover:text-white transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -341,7 +335,7 @@
 <div id="chartsModal" class="modal-overlay hidden">
   <div class="modal-content charts-modal fade-in">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-white flex items-center gap-2">📊 Análisis de Fallas</h2>
+      <h2 class="text-xl font-bold text-white flex items-center gap-2"> Análisis de Fallas</h2>
       <button onclick="closeChartsModal()" class="text-slate-400 hover:text-white transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -366,11 +360,11 @@
         <div class="chart-container"><canvas id="chartLocalidades"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>🗺️ Fallas por Zona</h3>
+        <h3>️ Fallas por Zona</h3>
         <div class="chart-container"><canvas id="chartZonas"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3> Evolución de Fallas (Últimos 30 días)</h3>
+        <h3>📅 Evolución de Fallas (Últimos 30 días)</h3>
         <div class="chart-container"><canvas id="chartTimeline"></canvas></div>
       </div>
       <div class="chart-card lg:col-span-2">
@@ -414,6 +408,7 @@
       </button>
       <button onclick="logout()" class="header-btn px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
         <span>🚪</span>
+        <span class="hidden sm:inline">Salir</span>
       </button>
       <button onclick="document.getElementById('fileInput').click()" class="btn-primary header-btn px-3 py-2 rounded-lg text-white font-semibold text-xs flex items-center gap-1.5 shadow-lg">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -540,7 +535,7 @@
   <!-- Mobile View Switcher -->
   <div class="mobile-view-btns">
     <button class="mobile-view-btn active" onclick="switchView('list')" id="btnViewList">
-      <span class="icon"></span>
+      <span class="icon">📋</span>
       Lista
     </button>
     <button class="mobile-view-btn" onclick="switchView('map')" id="btnViewMap">
@@ -588,7 +583,6 @@ function toggleLegendModal() {
   modal.classList.toggle('show');
 }
 
-// Close legend modal when clicking outside
 document.addEventListener('click', function(e) {
   const modal = document.getElementById('legendModal');
   const fab = document.querySelector('.legend-fab');
@@ -695,7 +689,7 @@ function confirmResetPassword() {
   msg.classList.remove('hidden');
 
   if (!newPass || !confirmPass) { msg.textContent = '⚠️ Complete todos los campos.'; msg.className = 'text-sm text-yellow-400'; return; }
-  if (newPass.length < 4) { msg.textContent = '️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
+  if (newPass.length < 4) { msg.textContent = '⚠️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass !== confirmPass) { msg.textContent = '❌ Las contraseñas no coinciden.'; msg.className = 'text-sm text-red-400'; return; }
 
   const user = users.find(u => u.username === resetTargetUsername);
@@ -725,7 +719,7 @@ function confirmDeleteUser() {
   if (!deleteTargetUsername) return;
   users = users.filter(u => u.username !== deleteTargetUsername);
   saveUsersToStorage();
-  showToast(`️ Usuario "${deleteTargetUsername}" eliminado`, 'success');
+  showToast(`🗑️ Usuario "${deleteTargetUsername}" eliminado`, 'success');
   closeDeleteModal();
   renderUserList();
 }
@@ -735,7 +729,7 @@ function handleAddUser() {
   const username = document.getElementById('newUsername').value.trim();
   const password = document.getElementById('newPassword').value;
   const role = document.getElementById('newRole').value;
-  if (!username || !password) { showToast('⚠️ Complete todos los campos', 'warning'); return; }
+  if (!username || !password) { showToast('️ Complete todos los campos', 'warning'); return; }
   if (users.find(u => u.username === username)) { showToast('⚠️ El usuario ya existe', 'warning'); return; }
   users.push({ username, password, role });
   saveUsersToStorage();
@@ -774,7 +768,7 @@ function handleChangeOwnPassword() {
   const user = users.find(u => u.username === currentLoggedInUser);
   if (!user) { msg.textContent = '❌ Error: usuario no encontrado.'; msg.className = 'text-sm text-red-400'; return; }
   if (user.password !== currentPass) { msg.textContent = '❌ La contraseña actual es incorrecta.'; msg.className = 'text-sm text-red-400'; return; }
-  if (newPass.length < 4) { msg.textContent = '⚠️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
+  if (newPass.length < 4) { msg.textContent = '️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass !== confirmPass) { msg.textContent = '❌ Las contraseñas no coinciden.'; msg.className = 'text-sm text-red-400'; return; }
   if (newPass === currentPass) { msg.textContent = '⚠️ Debe ser diferente a la actual.'; msg.className = 'text-sm text-yellow-400'; return; }
 
@@ -1019,15 +1013,15 @@ function categorizeError(msg, estado) {
   const e = (estado || '').toLowerCase();
   if (m.includes('no tiene energía') || m.includes('unexpected mains power loss')) return { name: 'Sin energía', color: '#ef4444', icon: '⚡' };
   if (m.includes('no está accesible') || e === 'unreachable') return { name: 'OLC inaccesible', color: '#f97316', icon: '🔌' };
-  if (m.includes('gps') && m.includes('roto')) return { name: 'GPS roto', color: '#eab308', icon: '' };
-  if (m.includes('voltaje') || m.includes('corriente')) return { name: 'Voltaje/Corriente', color: '#a855f7', icon: '️' };
+  if (m.includes('gps') && m.includes('roto')) return { name: 'GPS roto', color: '#eab308', icon: '📡' };
+  if (m.includes('voltaje') || m.includes('corriente')) return { name: 'Voltaje/Corriente', color: '#a855f7', icon: '⚠️' };
   if (m.includes('driver') || m.includes('relé') || m.includes('regula')) return { name: 'Driver/Relé', color: '#ec4899', icon: '🔧' };
   if (m.includes('puesta en servicio')) return { name: 'Puesta en servicio', color: '#06b6d4', icon: '⏱️' };
   if (m.includes('fotocelda') || m.includes('componente de medición')) return { name: 'Sensor/Medición', color: '#8b5cf6', icon: '📏' };
   if (m.includes('configuración') || m.includes('coincidencia') || m.includes('segmento')) return { name: 'Error configuración', color: '#10b981', icon: '⚙️' };
-  if (m.includes('ubicación') && m.includes('cambió')) return { name: 'Ubicación cambiada', color: '#6366f1', icon: '' };
-  if (e === 'broken') return { name: 'Equipo dañado', color: '#dc2626', icon: '' };
-  if (e === 'info' || m.includes('actualización')) return { name: 'Info/Actualización', color: '#64748b', icon: 'ℹ️' };
+  if (m.includes('ubicación') && m.includes('cambió')) return { name: 'Ubicación cambiada', color: '#6366f1', icon: '📍' };
+  if (e === 'broken') return { name: 'Equipo dañado', color: '#dc2626', icon: '💥' };
+  if (e === 'info' || m.includes('actualización')) return { name: 'Info/Actualización', color: '#64748b', icon: '️' };
   return { name: 'Otros', color: '#64748b', icon: '❓' };
 }
 
