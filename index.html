@@ -28,6 +28,8 @@
   .btn-pdf:hover { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
   .btn-charts { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); transition: all 0.3s; }
   .btn-charts:hover { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
+  .btn-cuenta { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); transition: all 0.3s; }
+  .btn-cuenta:hover { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(244, 63, 94, 0.4); }
   .zone-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
   .error-item { transition: all 0.2s; cursor: pointer; }
   .error-item:hover { background: rgba(59, 130, 246, 0.15); transform: translateX(4px); }
@@ -41,7 +43,6 @@
   .leaflet-control-attribution { z-index: 998 !important; }
   .leaflet-top, .leaflet-bottom { z-index: 998 !important; }
   
-  /* SELECTS CON FONDO NEGRO */
   select {
     background-color: #0f172a !important;
     color: #e2e8f0 !important;
@@ -110,10 +111,18 @@
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-  .legend-box { 
+  .legend-box-fallas { 
     position: absolute; 
     bottom: 20px; 
     left: 20px; 
+    z-index: 9999 !important; 
+    pointer-events: auto;
+    display: block;
+  }
+  .legend-box-situacion { 
+    position: absolute; 
+    bottom: 20px; 
+    right: 20px; 
     z-index: 9999 !important; 
     pointer-events: auto;
     display: block;
@@ -181,7 +190,8 @@
     #headerSubtitle { font-size: 10px !important; }
     .header-btn { padding: 8px 10px !important; font-size: 11px !important; }
     .header-btn svg { width: 14px !important; height: 14px !important; }
-    .legend-box { display: none !important; }
+    .legend-box-fallas { display: none !important; }
+    .legend-box-situacion { display: none !important; }
     .legend-fab { display: flex !important; }
   }
   
@@ -391,9 +401,9 @@
         <h3>📅 Evolución de Fallas (Últimos 30 días)</h3>
         <div class="chart-container"><canvas id="chartTimeline"></canvas></div>
       </div>
-      <div class="chart-card lg:col-span-2">
+      <div class="chart-card">
         <h3>🔥 Fallas Críticas por Localidad</h3>
-        <div class="chart-container tall"><canvas id="chartCriticas"></canvas></div>
+        <div class="chart-container"><canvas id="chartCriticas"></canvas></div>
       </div>
     </div>
   </div>
@@ -495,6 +505,11 @@
             </select>
           </div>
         </div>
+        <div>
+          <select id="cuentaFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+            <option value="all">Todas las cuentas</option>
+          </select>
+        </div>
       </div>
       <div class="flex-1 scroll-y p-2 space-y-2" id="errorList">
         <div class="text-center text-slate-500 mt-10 p-4">
@@ -508,10 +523,10 @@
     <main class="map-panel relative view-map" style="flex: 1; min-height: 0; height: 100%;">
       <div id="map" style="height: 100%; width: 100%;"></div>
       
-      <!-- Leyenda (Solo PC) -->
-      <div class="legend-box glass rounded-lg p-3 shadow-2xl">
+      <!-- LEYENDA DE FALLAS (izquierda) -->
+      <div class="legend-box-fallas glass rounded-lg p-3 shadow-2xl">
         <div class="text-xs font-bold text-white mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Leyenda de Fallas</div>
-        <div class="space-y-1.5 text-xs">
+        <div class="space-y-1.5 text-xs" id="legendFallasContent">
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span><span class="text-slate-200">Sin energía</span></div>
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-orange-500"></span><span class="text-slate-200">OLC inaccesible</span></div>
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-yellow-500"></span><span class="text-slate-200">GPS roto</span></div>
@@ -522,13 +537,13 @@
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-indigo-500"></span><span class="text-slate-200">Ubicación cambiada</span></div>
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-slate-400"></span><span class="text-slate-200">Otros</span></div>
         </div>
-        <div class="mt-3 pt-3 border-t border-slate-600">
-          <div class="text-xs font-bold text-white mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Leyenda de Situación</div>
-          <div class="space-y-1.5 text-xs">
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600"></span><span class="text-slate-200">Broken</span></div>
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span><span class="text-slate-200">Inconsistent</span></div>
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span><span class="text-slate-200">Info</span></div>
-          </div>
+      </div>
+
+      <!-- LEYENDA DE SITUACIÓN (derecha, dinámica) -->
+      <div class="legend-box-situacion glass rounded-lg p-3 shadow-2xl">
+        <div class="text-xs font-bold text-white mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Leyenda de Situación</div>
+        <div class="space-y-1.5 text-xs" id="legendSituacionContent">
+          <div class="text-slate-400 text-xs italic">Cargue una planilla para ver las situaciones</div>
         </div>
       </div>
       
@@ -541,7 +556,7 @@
           <div class="text-xs font-bold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Leyenda de Fallas</div>
           <button onclick="toggleLegendModal()" class="text-slate-400 hover:text-white">✕</button>
         </div>
-        <div class="space-y-2 text-xs">
+        <div class="space-y-2 text-xs" id="legendModalFallas">
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span><span class="text-slate-200">Sin energía</span></div>
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-orange-500"></span><span class="text-slate-200">OLC inaccesible</span></div>
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-yellow-500"></span><span class="text-slate-200">GPS roto</span></div>
@@ -553,11 +568,9 @@
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-slate-400"></span><span class="text-slate-200">Otros</span></div>
         </div>
         <div class="mt-3 pt-3 border-t border-slate-600">
-          <div class="text-xs font-bold text-white mb-2">Leyenda de Situación</div>
-          <div class="space-y-1.5 text-xs">
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-600"></span><span class="text-slate-200">Broken</span></div>
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span><span class="text-slate-200">Inconsistent</span></div>
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span><span class="text-slate-200">Info</span></div>
+          <div class="text-xs font-bold text-white mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Leyenda de Situación</div>
+          <div class="space-y-1.5 text-xs" id="legendModalSituacion">
+            <div class="text-slate-400 text-xs italic">Cargue una planilla</div>
           </div>
         </div>
       </div>
@@ -843,10 +856,12 @@ function updateCharts() {
   const zonaFilter = document.getElementById('zonaFilter').value;
   const errorFilter = document.getElementById('errorFilter').value;
   const situacionFilter = document.getElementById('situacionFilter').value;
+  const cuentaFilter = document.getElementById('cuentaFilter').value;
   if (locFilter !== 'all') filters.push(`Localidad: ${locFilter}`);
   if (zonaFilter !== 'all') filters.push(`Zona: ${zonaFilter}`);
   if (errorFilter !== 'all') filters.push(`Tipo: ${errorFilter}`);
   if (situacionFilter !== 'all') filters.push(`Situación: ${situacionFilter}`);
+  if (cuentaFilter !== 'all') filters.push(`Cuenta: ${cuentaFilter}`);
   document.getElementById('chartsFilterInfo').textContent = filters.length > 0 ? filters.join(' | ') : 'Todos los registros';
   document.getElementById('chartsTotalCount').textContent = data.length;
 
@@ -875,7 +890,7 @@ function updateCharts() {
     options: { ...defaultOptions, cutout: '55%', plugins: { ...defaultOptions.plugins, legend: { position: 'right', labels: { color: chartColors.text, font: { size: 10 }, boxWidth: 12, padding: 8 } } } }
   });
 
-  // 2. Situaciones
+  // 2. Situaciones (usando el campo Situación - columna 12)
   const situacionCounts = {};
   data.forEach(row => { 
     const sit = row['Situación'] || 'Sin información';
@@ -885,10 +900,14 @@ function updateCharts() {
   const situacionValues = situacionLabels.map(l => situacionCounts[l]);
   const situacionColors = situacionLabels.map(s => {
     const sitLower = s.toLowerCase();
-    if (sitLower.includes('broken') || sitLower.includes('roto')) return '#dc2626';
-    if (sitLower.includes('inconsistent') || sitLower.includes('inconsistente')) return '#f59e0b';
-    if (sitLower.includes('info') || sitLower.includes('información')) return '#3b82f6';
-    return '#64748b';
+    if (sitLower.includes('columna caida') || sitLower.includes('caida')) return '#dc2626';
+    if (sitLower.includes('vandalizado')) return '#f59e0b';
+    if (sitLower.includes('hurto')) return '#f97316';
+    if (sitLower.includes('retirada')) return '#64748b';
+    if (sitLower.includes('falta linea')) return '#a855f7';
+    if (sitLower.includes('roadforce')) return '#ec4899';
+    if (sitLower.includes('sin energía')) return '#ef4444';
+    return '#3b82f6';
   });
 
   charts.situaciones = new Chart(document.getElementById('chartSituaciones'), {
@@ -1017,15 +1036,16 @@ async function exportToPDF() {
     const zonaFilter = document.getElementById('zonaFilter').value;
     const errorFilter = document.getElementById('errorFilter').value;
     const situacionFilter = document.getElementById('situacionFilter').value;
+    const cuentaFilter = document.getElementById('cuentaFilter').value;
     if (locFilter !== 'all') filters.push(`Localidad: ${locFilter}`);
     if (zonaFilter !== 'all') filters.push(`Zona: ${zonaFilter}`);
     if (errorFilter !== 'all') filters.push(`Tipo: ${errorFilter}`);
     if (situacionFilter !== 'all') filters.push(`Situación: ${situacionFilter}`);
+    if (cuentaFilter !== 'all') filters.push(`Cuenta: ${cuentaFilter}`);
     if (filters.length > 0) { pdf.setTextColor(100, 116, 139); pdf.setFontSize(8); pdf.text(`Filtros: ${filters.join(' | ')}`, margin, yPosition); yPosition += 8; }
 
-    // Headers con Situación
-    const colWidths = [8, 22, 38, 25, 16, 26, 50, 18, 18];
-    const headers = ['#', 'Asset ID', 'External ID', 'Localidad', 'Zona', 'Tipo Falla', 'Mensaje de Error', 'Fecha', 'Situación'];
+    const colWidths = [8, 22, 38, 25, 16, 26, 45, 18, 18, 18];
+    const headers = ['#', 'Asset ID', 'External ID', 'Localidad', 'Zona', 'Tipo Falla', 'Mensaje de Error', 'Fecha', 'Situación', 'Cuenta'];
     
     pdf.setFillColor(30, 41, 59);
     pdf.rect(margin, yPosition, pageWidth - margin * 2, 8, 'F');
@@ -1035,7 +1055,7 @@ async function exportToPDF() {
     headers.forEach((h, i) => { pdf.text(h, xPos + 1, yPosition + 5); xPos += colWidths[i]; });
     yPosition += 8;
     pdf.setFont(undefined, 'normal'); pdf.setFontSize(5.5);
-    const maxRowsPerPage = 40;
+    const maxRowsPerPage = 38;
     let rowCount = 0;
     let currentPage = 1;
 
@@ -1066,10 +1086,10 @@ async function exportToPDF() {
       pdf.setTextColor(errColor[0], errColor[1], errColor[2]); pdf.setFont(undefined, 'bold');
       pdf.text(row.categoria.name, xPos + 1, yPosition + 3.5); xPos += colWidths[5];
       pdf.setFont(undefined, 'normal'); pdf.setTextColor(30, 41, 59);
-      pdf.text(row['Mensaje de error'].substring(0, 40), xPos + 1, yPosition + 3.5); xPos += colWidths[6];
-      pdf.text((row['Fecha creación'] || '-').split('T')[0], xPos + 1, yPosition + 3.5); xPos += colWidths[7];
-      // Situación
-      pdf.text((row['Situación'] || '-').substring(0, 25), xPos + 1, yPosition + 3.5);
+      pdf.text(row['Mensaje de error'].substring(0, 35), xPos + 1, yPosition + 3.5); xPos += colWidths[6];
+      pdf.text((row['Fecha creación'] || '-').split(' ')[0], xPos + 1, yPosition + 3.5); xPos += colWidths[7];
+      pdf.text((row['Situación'] || '-').substring(0, 20), xPos + 1, yPosition + 3.5); xPos += colWidths[8];
+      pdf.text((row['Número de Cuenta'] || '-').substring(0, 15), xPos + 1, yPosition + 3.5);
       yPosition += 5; rowCount++;
     });
     pdf.setTextColor(148, 163, 184); pdf.setFontSize(7);
@@ -1117,14 +1137,46 @@ function cleanZona(zonaRaw) {
   return cleaned;
 }
 
-// Parser CSV adaptado para leer Situación (columna 12 si existe)
+function getSituacionColor(sit) {
+  const sitLower = (sit || '').toLowerCase();
+  if (sitLower.includes('columna caida') || sitLower.includes('caida')) return '#dc2626';
+  if (sitLower.includes('vandalizado')) return '#f59e0b';
+  if (sitLower.includes('hurto')) return '#f97316';
+  if (sitLower.includes('retirada')) return '#64748b';
+  if (sitLower.includes('falta linea')) return '#a855f7';
+  if (sitLower.includes('roadforce')) return '#ec4899';
+  if (sitLower.includes('sin energía')) return '#ef4444';
+  return '#3b82f6';
+}
+
+function updateSituacionLegend(data) {
+  const situacionCounts = {};
+  data.forEach(row => { 
+    const sit = row['Situación'] || 'Sin información';
+    situacionCounts[sit] = (situacionCounts[sit] || 0) + 1; 
+  });
+  const situaciones = Object.keys(situacionCounts).sort((a, b) => situacionCounts[b] - situacionCounts[a]);
+  
+  const html = situaciones.map(s => `
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full" style="background-color: ${getSituacionColor(s)}"></span>
+      <span class="text-slate-200 truncate flex-1" title="${s} (${situacionCounts[s]})">${s} <span class="text-slate-500">(${situacionCounts[s]})</span></span>
+    </div>
+  `).join('');
+  
+  document.getElementById('legendSituacionContent').innerHTML = html || '<div class="text-slate-400 text-xs italic">Sin situaciones</div>';
+  document.getElementById('legendModalSituacion').innerHTML = html || '<div class="text-slate-400 text-xs italic">Sin situaciones</div>';
+}
+
+// Parser CSV corregido para el formato del archivo REPORTE_LUMINARIAS(3).csv
+// Columnas: 0:Created, 1:AssetID, 2:MensajeDeError, 3:FechaCreacion, 4:FechaModificacion, 5:Estado, 6:ExternalID, 7:Latitud, 8:Longitud, 9:FechaProgramada, 10:Localidad, 11:Zona, 12:Situacion, 13:NumeroCuenta
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   const result = [];
   
   // Detectar si tiene header
   const firstLine = lines[0].toLowerCase();
-  const hasHeader = firstLine.includes('created') || firstLine.includes('asset') || firstLine.includes('seccion');
+  const hasHeader = firstLine.includes('created') && firstLine.includes('asset');
   const startIndex = hasHeader ? 1 : 0;
   
   for (let i = startIndex; i < lines.length; i++) {
@@ -1138,22 +1190,23 @@ function parseCSV(text) {
     }
     row.push(current.trim());
     
-    // Formato REPORTE_LUMINARIAS: Created,AssetID,MensajeDeError,Estado,FechaCreacion,FechaModificacion,ExternalID,Latitud,Longitud,FechaProgramada,Localidad,Zona,Situacion
+    // Necesitamos al menos 12 columnas (sin número de cuenta) o 14 (con número de cuenta)
     if (row.length >= 12) {
       const obj = {
         'Created': row[0] || '',
         'Asset ID': row[1] || '',
         'Mensaje de error': row[2] || '',
-        'Estado': row[3] || '',
-        'Fecha creación': row[4] || '',
-        'Fecha modificación': row[5] || '',
+        'Fecha creación': row[3] || '',
+        'Fecha modificación': row[4] || '',
+        'Estado': row[5] || '',  // Broken, Unreachable, Inconsistent, Info
         'External ID': row[6] || '',
         'Latitud': (row[7] || '').replace(',', '.'),
         'Longitud': (row[8] || '').replace(',', '.'),
         'Fecha programada': row[9] || '',
         'Localidad': row[10] || '',
         'Zona': row[11] || '',
-        'Situación': row[12] || ''  // NUEVO CAMPO
+        'Situación': row[12] || '',  // Columna caida, Vandalizado NF, Hurto, etc.
+        'Número de Cuenta': row[13] || ''  // Número de cuenta del cliente
       };
       obj.lat = parseFloat(obj.Latitud);
       obj.lng = parseFloat(obj.Longitud);
@@ -1207,7 +1260,9 @@ function renderMarkers(data) {
     const marker = L.circleMarker([row.lat, row.lng], {
       radius: 9, fillColor: row.categoria.color, color: '#ffffff', weight: 2, opacity: 1, fillOpacity: 0.9
     }).addTo(map);
-    marker.bindPopup(`<div style="font-size:13px;color:#1e293b;"><strong style="color:${row.categoria.color}">${row.categoria.icon} ${row.categoria.name}</strong><br><b>Localidad:</b> ${row.localidad}<br><b>Zona:</b> ${row.zona}<br><b>Asset:</b> ${row['Asset ID']}<br><b>External:</b> ${row['External ID']}<br><b>Fecha:</b> ${row['Fecha creación']}${row['Situación'] ? `<br><b>Situación:</b> ${row['Situación']}` : ''}</div>`);
+    const situacion = row['Situación'] || '';
+    const cuenta = row['Número de Cuenta'] || '';
+    marker.bindPopup(`<div style="font-size:13px;color:#1e293b;"><strong style="color:${row.categoria.color}">${row.categoria.icon} ${row.categoria.name}</strong><br><b>Localidad:</b> ${row.localidad}<br><b>Zona:</b> ${row.zona}<br><b>Asset:</b> ${row['Asset ID']}<br><b>External:</b> ${row['External ID']}<br><b>Fecha:</b> ${row['Fecha creación']}${situacion ? `<br><b>Situación:</b> ${situacion}` : ''}${cuenta ? `<br><b>Cuenta:</b> ${cuenta}` : ''}</div>`);
     marker.on('click', () => selectAsset(row));
     markers.push(marker);
     bounds.push([row.lat, row.lng]);
@@ -1220,11 +1275,13 @@ function populateFilters() {
   const zonas = [...new Set(allData.map(d => d.zona))].filter(z => z && z !== 'Sin Zona').sort();
   const errors = [...new Set(allData.map(d => d.categoria.name))].sort();
   const situaciones = [...new Set(allData.map(d => d['Situación']))].filter(s => s && s.trim() !== '').sort();
+  const cuentas = [...new Set(allData.map(d => d['Número de Cuenta']))].filter(c => c && c.trim() !== '').sort();
   
   document.getElementById('localidadFilter').innerHTML = '<option value="all">Todas las localidades</option>' + localidades.map(l => `<option value="${l}">${l}</option>`).join('');
   document.getElementById('zonaFilter').innerHTML = '<option value="all">Todas las zonas</option>' + zonas.map(z => `<option value="${z}">${z}</option>`).join('');
   document.getElementById('errorFilter').innerHTML = '<option value="all">Todos los tipos</option>' + errors.map(e => `<option value="${e}">${e}</option>`).join('');
   document.getElementById('situacionFilter').innerHTML = '<option value="all">Todas las situaciones</option>' + situaciones.map(s => `<option value="${s}">${s}</option>`).join('');
+  document.getElementById('cuentaFilter').innerHTML = '<option value="all">Todas las cuentas</option>' + cuentas.map(c => `<option value="${c}">${c}</option>`).join('');
 }
 
 function updateStats() {
@@ -1237,7 +1294,10 @@ function updateStats() {
 function renderList() {
   const container = document.getElementById('errorList');
   if (filteredData.length === 0) { container.innerHTML = '<div class="text-center text-slate-400 mt-10 p-4"><div class="text-4xl mb-2">🔍</div><p class="text-sm">No hay resultados</p></div>'; return; }
-  container.innerHTML = filteredData.slice(0, 200).map((row, idx) => `
+  container.innerHTML = filteredData.slice(0, 200).map((row, idx) => {
+    const situacion = row['Situación'] || '';
+    const cuenta = row['Número de Cuenta'] || '';
+    return `
     <div class="error-item glass rounded-lg p-3 ${currentSelected && currentSelected['Asset ID'] === row['Asset ID'] ? 'active' : ''}" onclick="selectAsset(allData[${allData.indexOf(row)}])">
       <div class="flex items-start justify-between mb-2">
         <span class="zone-badge" style="background:${row.categoria.color}20; color:${row.categoria.color}; border: 1px solid ${row.categoria.color}40">${row.categoria.icon} ${row.localidad}</span>
@@ -1245,10 +1305,11 @@ function renderList() {
       </div>
       <div class="text-sm font-semibold text-white mb-1 truncate">${row['External ID']}</div>
       <div class="text-xs text-slate-300 line-clamp-2">${row['Mensaje de error']}</div>
-      ${row['Situación'] ? `<div class="text-xs text-amber-400 mt-1.5 italic flex items-center gap-1"><span>📌</span><span class="truncate">${row['Situación']}</span></div>` : ''}
+      ${situacion ? `<div class="text-xs text-amber-400 mt-1.5 italic flex items-center gap-1"><span>📌</span><span class="truncate">${situacion}</span></div>` : ''}
+      ${cuenta ? `<div class="text-xs text-rose-400 mt-1 flex items-center gap-1"><span>💳</span><span class="font-semibold">Cuenta: ${cuenta}</span></div>` : ''}
       <div class="flex items-center gap-2 mt-2"><span class="text-xs text-slate-400">Zona: <span class="text-slate-200 font-semibold">${row.zona}</span></span></div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function selectAsset(row) {
@@ -1257,6 +1318,8 @@ function selectAsset(row) {
   panel.classList.remove('hidden');
   panel.classList.add('fade-in');
   const allErrorsForAsset = allData.filter(d => d['Asset ID'] === row['Asset ID']);
+  const situacion = row['Situación'] || '';
+  const cuenta = row['Número de Cuenta'] || '';
   document.getElementById('detailContent').innerHTML = `
     <div class="space-y-3">
       <div class="rounded-lg p-4" style="background: ${row.categoria.color}20; border: 1px solid ${row.categoria.color}40">
@@ -1273,12 +1336,18 @@ function selectAsset(row) {
           <div><div class="text-xs text-slate-400">Localidad</div><div class="text-sm font-semibold text-white">${row.localidad}</div></div>
           <div><div class="text-xs text-slate-400">Zona</div><div class="text-sm font-semibold text-white">${row.zona}</div></div>
         </div>
+        ${cuenta ? `
+        <div class="bg-rose-500/10 border border-rose-500/30 rounded-lg p-3">
+          <div class="text-xs text-rose-300 mb-1">💳 Número de Cuenta</div>
+          <div class="text-lg font-bold text-rose-400">${cuenta}</div>
+        </div>
+        ` : ''}
       </div>
       <div class="glass rounded-lg p-4"><div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Mensaje de Error</div><div class="text-sm text-slate-200 leading-relaxed">${row['Mensaje de error']}</div></div>
-      ${row['Situación'] ? `
+      ${situacion ? `
       <div class="glass rounded-lg p-4 border-l-4 border-amber-500">
         <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">📌 Situación</div>
-        <div class="text-sm text-slate-200 leading-relaxed">${row['Situación']}</div>
+        <div class="text-sm text-slate-200 leading-relaxed">${situacion}</div>
       </div>
       ` : ''}
       <div class="glass rounded-lg p-4">
@@ -1329,17 +1398,22 @@ function applyFilters() {
   const zona = document.getElementById('zonaFilter').value;
   const error = document.getElementById('errorFilter').value;
   const situacion = document.getElementById('situacionFilter').value;
+  const cuenta = document.getElementById('cuentaFilter').value;
   filteredData = allData.filter(row => {
+    const rowSituacion = row['Situación'] || '';
+    const rowCuenta = row['Número de Cuenta'] || '';
     const matchSearch = !search || (row['Asset ID'] || '').toLowerCase().includes(search) || (row['External ID'] || '').toLowerCase().includes(search);
     const matchLocalidad = localidad === 'all' || row.localidad === localidad;
     const matchZona = zona === 'all' || row.zona === zona;
     const matchError = error === 'all' || row.categoria.name === error;
-    const matchSituacion = situacion === 'all' || row['Situación'] === situacion;
-    return matchSearch && matchLocalidad && matchZona && matchError && matchSituacion;
+    const matchSituacion = situacion === 'all' || rowSituacion === situacion;
+    const matchCuenta = cuenta === 'all' || rowCuenta === cuenta;
+    return matchSearch && matchLocalidad && matchZona && matchError && matchSituacion && matchCuenta;
   });
   updateStats(); 
   renderMarkers(filteredData); 
   renderList();
+  updateSituacionLegend(filteredData);
 }
 
 function handleFile(event) {
@@ -1365,6 +1439,7 @@ document.getElementById('localidadFilter').addEventListener('change', applyFilte
 document.getElementById('zonaFilter').addEventListener('change', applyFilters);
 document.getElementById('errorFilter').addEventListener('change', applyFilters);
 document.getElementById('situacionFilter').addEventListener('change', applyFilters);
+document.getElementById('cuentaFilter').addEventListener('change', applyFilters);
 
 window.onload = function() {
   initUsers();
