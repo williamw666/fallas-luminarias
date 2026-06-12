@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Fallas de Luminarias de ALUMBRADO IMC</title>
+<title>Fallas de Luminarias ALUMBRADO IMC</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -41,54 +41,24 @@
   .leaflet-control-attribution { z-index: 998 !important; }
   .leaflet-top, .leaflet-bottom { z-index: 998 !important; }
   
-  select {
-    background-color: #0f172a !important;
-    color: #e2e8f0 !important;
-    cursor: pointer;
-  }
-  select option {
-    background-color: #000000 !important;
-    color: #e2e8f0 !important;
-    padding: 8px;
-  }
-  select option:hover,
-  select option:checked {
-    background-color: #1e293b !important;
-    color: #ffffff !important;
-  }
+  select { background-color: #0f172a !important; color: #e2e8f0 !important; cursor: pointer; }
+  select option { background-color: #000000 !important; color: #e2e8f0 !important; padding: 8px; }
+  select option:hover, select option:checked { background-color: #1e293b !important; color: #ffffff !important; }
   select::-webkit-scrollbar { width: 8px; }
   select::-webkit-scrollbar-track { background: #000000; }
   select::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
   
-  #loginOverlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    z-index: 99999; display: flex; align-items: center; justify-content: center;
-  }
-  .login-box {
-    background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(20px);
-    border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 20px;
-    padding: 40px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    max-width: 420px; width: 90%;
-  }
-  .login-input {
-    background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(148, 163, 184, 0.2);
-    border-radius: 10px; padding: 12px 16px; color: white; font-size: 16px; transition: all 0.3s;
-  }
+  #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); z-index: 99999; display: flex; align-items: center; justify-content: center; }
+  .login-box { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(20px); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 20px; padding: 40px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); max-width: 420px; width: 90%; }
+  .login-input { background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; padding: 12px 16px; color: white; font-size: 16px; transition: all 0.3s; }
   .login-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
   .login-input::placeholder { color: #64748b; }
   .error-message { color: #ef4444; font-size: 14px; margin-top: 10px; display: none; }
   .shake { animation: shake 0.5s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
   
-  .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7); z-index: 99998; display: flex; align-items: center; justify-content: center;
-  }
-  .modal-content {
-    background: rgba(30, 41, 59, 0.98); border: 2px solid rgba(16, 185, 129, 0.3);
-    border-radius: 16px; padding: 32px; max-width: 650px; width: 90%; max-height: 80vh; overflow-y: auto;
-  }
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 99998; display: flex; align-items: center; justify-content: center; }
+  .modal-content { background: rgba(30, 41, 59, 0.98); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 32px; max-width: 650px; width: 90%; max-height: 80vh; overflow-y: auto; }
   
   .charts-modal { max-width: 1200px; max-height: 90vh; border-color: rgba(139, 92, 246, 0.3); }
   .chart-card { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 12px; padding: 20px; }
@@ -96,77 +66,19 @@
   .chart-container { position: relative; height: 280px; }
   .chart-container.tall { height: 350px; }
 
-  .toast {
-    position: fixed; top: 20px; right: 20px; z-index: 999999;
-    padding: 16px 24px; border-radius: 12px; font-weight: 600; font-size: 14px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
-    max-width: 400px;
-  }
+  .toast { position: fixed; top: 20px; right: 20px; z-index: 999999; padding: 16px 24px; border-radius: 12px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards; max-width: 400px; }
   .toast-success { background: #059669; color: white; border: 1px solid #10b981; }
   .toast-error { background: #dc2626; color: white; border: 1px solid #ef4444; }
   .toast-warning { background: #d97706; color: white; border: 1px solid #f59e0b; }
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-  .legend-box-fallas { 
-    position: absolute; 
-    bottom: 20px; 
-    left: 20px; 
-    z-index: 9999 !important; 
-    pointer-events: auto;
-    display: block;
-  }
-  .legend-box-situacion { 
-    position: absolute; 
-    bottom: 20px; 
-    right: 20px; 
-    z-index: 9999 !important; 
-    pointer-events: auto;
-    display: block;
-  }
-  
-  .legend-fab {
-    display: none;
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999 !important;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: rgba(30, 41, 59, 0.95);
-    border: 2px solid rgba(148, 163, 184, 0.3);
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
-  }
-  .legend-fab:hover {
-    background: rgba(59, 130, 246, 0.9);
-    transform: scale(1.1);
-  }
-  
-  .legend-modal {
-    display: none;
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    z-index: 99999;
-    background: rgba(30, 41, 59, 0.98);
-    border: 2px solid rgba(148, 163, 184, 0.3);
-    border-radius: 12px;
-    padding: 16px;
-    max-width: 280px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  }
-  .legend-modal.show {
-    display: block;
-    animation: fadeIn 0.3s ease-in;
-  }
+  .legend-box-fallas { position: absolute; bottom: 20px; left: 20px; z-index: 9999 !important; pointer-events: auto; display: block; }
+  .legend-box-situacion { position: absolute; bottom: 20px; right: 20px; z-index: 9999 !important; pointer-events: auto; display: block; }
+  .legend-fab { display: none; position: absolute; bottom: 20px; right: 20px; z-index: 9999 !important; width: 50px; height: 50px; border-radius: 50%; background: rgba(30, 41, 59, 0.95); border: 2px solid rgba(148, 163, 184, 0.3); color: white; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); align-items: center; justify-content: center; transition: all 0.3s; }
+  .legend-fab:hover { background: rgba(59, 130, 246, 0.9); transform: scale(1.1); }
+  .legend-modal { display: none; position: fixed; bottom: 80px; right: 20px; z-index: 99999; background: rgba(30, 41, 59, 0.98); border: 2px solid rgba(148, 163, 184, 0.3); border-radius: 12px; padding: 16px; max-width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .legend-modal.show { display: block; animation: fadeIn 0.3s ease-in; }
 
   @media (max-width: 1024px) {
     #mainLayout { flex-direction: column !important; }
@@ -203,25 +115,24 @@
     .legend-modal { display: none !important; }
   }
   
-  .mobile-view-btns {
-    display: none;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 9990;
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(148, 163, 184, 0.2);
-    padding: 8px;
-    gap: 4px;
-  }
-  .mobile-view-btn {
-    flex: 1; padding: 10px 8px; border-radius: 10px; text-align: center;
-    font-size: 12px; font-weight: 600; color: #94a3b8;
-    background: rgba(51, 65, 85, 0.5); border: 1px solid rgba(148, 163, 184, 0.1);
-    cursor: pointer; transition: all 0.2s;
-  }
+  .mobile-view-btns { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9990; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(148, 163, 184, 0.2); padding: 8px; gap: 4px; }
+  .mobile-view-btn { flex: 1; padding: 10px 8px; border-radius: 10px; text-align: center; font-size: 12px; font-weight: 600; color: #94a3b8; background: rgba(51, 65, 85, 0.5); border: 1px solid rgba(148, 163, 184, 0.1); cursor: pointer; transition: all 0.2s; }
   .mobile-view-btn.active { background: rgba(59, 130, 246, 0.3); color: white; border-color: #3b82f6; }
   .mobile-view-btn .icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .data-table th { background: rgba(59, 130, 246, 0.2); color: #e2e8f0; padding: 8px 12px; text-align: left; font-weight: 600; border-bottom: 2px solid rgba(148, 163, 184, 0.3); }
+  .data-table td { padding: 6px 12px; border-bottom: 1px solid rgba(148, 163, 184, 0.1); color: #cbd5e1; }
+  .data-table tr:hover td { background: rgba(59, 130, 246, 0.1); }
+  .data-table-container { max-height: 400px; overflow-y: auto; }
+  .data-table-container::-webkit-scrollbar { width: 6px; }
+  .data-table-container::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+  
+  .btn-ver-mapa { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .btn-ver-mapa:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+
+  /* Hidden canvas for high-quality export */
+  #exportCanvas { display: none; }
 </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -244,7 +155,7 @@
           <input type="password" id="password" class="login-input w-full" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
         </div>
         <div id="errorMessage" class="error-message">⚠️ Usuario o contraseña incorrectos</div>
-        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6">🔐 Ingresar al Sistema</button>
+        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-semibold text-base shadow-lg mt-6"> Ingresar al Sistema</button>
       </div>
     </form>
   </div>
@@ -280,9 +191,7 @@
   <div class="modal-content fade-in" style="max-width: 450px;">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-bold text-white">🔑 Resetear Contraseña</h2>
-      <button onclick="closeResetModal()" class="text-slate-400 hover:text-white transition">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <button onclick="closeResetModal()" class="text-slate-400 hover:text-white transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="space-y-4">
       <div class="p-3 bg-orange-500/10 rounded-lg border border-orange-500/30">
@@ -308,9 +217,7 @@
   <div class="modal-content fade-in" style="max-width: 450px;">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-bold text-white">🗑️ Eliminar Usuario</h2>
-      <button onclick="closeDeleteModal()" class="text-slate-400 hover:text-white transition">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <button onclick="closeDeleteModal()" class="text-slate-400 hover:text-white transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="space-y-4">
       <div class="p-4 bg-red-500/10 rounded-lg border border-red-500/30 text-center">
@@ -332,9 +239,7 @@
   <div class="modal-content fade-in" style="max-width: 450px;">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-bold text-white">🔑 Cambiar mi Contraseña</h2>
-      <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-white transition">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-white transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="space-y-4">
       <div class="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
@@ -364,9 +269,7 @@
   <div class="modal-content charts-modal fade-in">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-bold text-white flex items-center gap-2">📊 Análisis de Fallas</h2>
-      <button onclick="closeChartsModal()" class="text-slate-400 hover:text-white transition">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <button onclick="closeChartsModal()" class="text-slate-400 hover:text-white transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="mb-4 p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
       <div class="flex items-center justify-between flex-wrap gap-2">
@@ -375,9 +278,26 @@
           <strong id="chartsFilterInfo" class="text-white ml-1">Todos los registros</strong>
           <span class="text-slate-500 ml-2">(<span id="chartsTotalCount">0</span> fallas)</span>
         </div>
-        <button onclick="updateCharts()" class="px-3 py-1 bg-violet-600/20 text-violet-300 hover:bg-violet-600/30 rounded text-xs font-medium transition">🔄 Actualizar</button>
+        <div class="flex gap-2">
+          <button onclick="exportChartsPDF()" class="btn-pdf px-3 py-1.5 rounded-lg text-white font-semibold text-xs flex items-center gap-1.5 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Exportar PDF
+          </button>
+          <button onclick="updateCharts()" class="px-3 py-1 bg-violet-600/20 text-violet-300 hover:bg-violet-600/30 rounded text-xs font-medium transition">🔄 Actualizar</button>
+        </div>
       </div>
     </div>
+    
+    <!-- Selector de Cuenta -->
+    <div class="mb-4 p-3 bg-rose-500/10 rounded-lg border border-rose-500/30">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="text-sm font-semibold text-rose-300 flex items-center gap-1">💳 Seleccionar Cuenta:</span>
+        <select id="cuentaSelector" onchange="updateCharts()" class="flex-1 min-w-[200px] bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500">
+          <option value="all">Todas las cuentas</option>
+        </select>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div class="chart-card">
         <h3>🎯 Distribución por Tipo de Falla</h3>
@@ -396,21 +316,25 @@
         <div class="chart-container"><canvas id="chartZonas"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>📅 Evolución de Fallas (Últimos 30 días)</h3>
+        <h3> Evolución de Fallas (Últimos 30 días)</h3>
         <div class="chart-container"><canvas id="chartTimeline"></canvas></div>
       </div>
       <div class="chart-card">
         <h3>🔥 Fallas Críticas por Localidad</h3>
         <div class="chart-container"><canvas id="chartCriticas"></canvas></div>
       </div>
-      <!-- NUEVO GRÁFICO: Puntos por Número de Cuenta -->
-      <div class="chart-card lg:col-span-2">
-        <h3>💳 Top 15 Números de Cuenta con más Puntos</h3>
-        <div class="chart-container tall"><canvas id="chartCuentas"></canvas></div>
+      
+      <!-- Sección de Cuentas -->
+      <div class="chart-card lg:col-span-2" id="cuentaChartsContainer">
+        <h3 id="cuentaChartTitle">💳 Puntos con número de cuenta</h3>
+        <div id="cuentaDataSection"></div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Hidden canvas for high-quality chart export -->
+<canvas id="exportCanvas" width="1200" height="600"></canvas>
 
 <!-- Toast Container -->
 <div id="toastContainer"></div>
@@ -419,7 +343,7 @@
 <div id="mainContent" class="hidden h-screen flex flex-col">
   <header class="glass border-b border-slate-700/50 px-4 py-3 flex items-center justify-between z-20 relative flex-wrap gap-2">
     <div class="flex-1 min-w-0">
-      <h1 id="headerTitle" class="text-lg font-bold text-white truncate">Fallas de Luminarias de ALUMBRADO IMC</h1>
+      <h1 id="headerTitle" class="text-lg font-bold text-white truncate">Fallas de Luminarias ALUMBRADO IMC</h1>
       <p id="headerSubtitle" class="text-xs text-slate-400 mt-0.5">Usuario: <span id="headerUser" class="text-blue-400"></span></p>
     </div>
     <div class="flex items-center gap-1.5 flex-wrap">
@@ -459,69 +383,31 @@
     <aside class="sidebar-panel glass border-r border-slate-700/50 flex flex-col relative z-10 view-list">
       <div class="p-3 border-b border-slate-700/50">
         <div class="grid grid-cols-2 gap-2 mb-2">
-          <div class="stat-card rounded-lg p-2.5">
-            <div class="text-xs text-slate-400 mb-0.5">Total Fallas</div>
-            <div class="text-xl font-bold text-white" id="statTotal">0</div>
-          </div>
-          <div class="stat-card info rounded-lg p-2.5">
-            <div class="text-xs text-slate-400 mb-0.5">Localidades</div>
-            <div class="text-xl font-bold text-white" id="statLocalidades">0</div>
-          </div>
-          <div class="stat-card danger rounded-lg p-2.5">
-            <div class="text-xs text-slate-400 mb-0.5">Sin Energía</div>
-            <div class="text-xl font-bold text-white" id="statNoEnergy">0</div>
-          </div>
-          <div class="stat-card warning rounded-lg p-2.5">
-            <div class="text-xs text-slate-400 mb-0.5">OLC Inaccesible</div>
-            <div class="text-xl font-bold text-white" id="statOLC">0</div>
-          </div>
+          <div class="stat-card rounded-lg p-2.5"><div class="text-xs text-slate-400 mb-0.5">Total Fallas</div><div class="text-xl font-bold text-white" id="statTotal">0</div></div>
+          <div class="stat-card info rounded-lg p-2.5"><div class="text-xs text-slate-400 mb-0.5">Localidades</div><div class="text-xl font-bold text-white" id="statLocalidades">0</div></div>
+          <div class="stat-card danger rounded-lg p-2.5"><div class="text-xs text-slate-400 mb-0.5">Sin Energía</div><div class="text-xl font-bold text-white" id="statNoEnergy">0</div></div>
+          <div class="stat-card warning rounded-lg p-2.5"><div class="text-xs text-slate-400 mb-0.5">OLC Inaccesible</div><div class="text-xl font-bold text-white" id="statOLC">0</div></div>
         </div>
       </div>
       <div class="p-3 border-b border-slate-700/50 space-y-2">
-        <div>
-          <input type="text" id="searchInput" placeholder="🔍 Buscar Asset ID, External ID..." class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        <div><input type="text" id="searchInput" placeholder="🔍 Buscar Asset ID, External ID..." class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><select id="localidadFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"><option value="all">Todas las localidades</option></select></div>
+          <div><select id="zonaFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"><option value="all">Todas las zonas</option></select></div>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <select id="localidadFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
-              <option value="all">Todas las localidades</option>
-            </select>
-          </div>
-          <div>
-            <select id="zonaFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
-              <option value="all">Todas las zonas</option>
-            </select>
-          </div>
+          <div><select id="errorFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"><option value="all">Todos los tipos de falla</option></select></div>
+          <div><select id="situacionFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"><option value="all">Todas las situaciones</option></select></div>
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <select id="errorFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
-              <option value="all">Todos los tipos de falla</option>
-            </select>
-          </div>
-          <div>
-            <select id="situacionFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
-              <option value="all">Todas las situaciones</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <select id="cuentaFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
-            <option value="all">Todas las cuentas</option>
-          </select>
-        </div>
+        <div><select id="cuentaFilter" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"><option value="all">Todas las cuentas</option></select></div>
       </div>
       <div class="flex-1 scroll-y p-2 space-y-2" id="errorList">
-        <div class="text-center text-slate-500 mt-10 p-4">
-          <div class="text-4xl mb-2">📋</div>
-          <p class="text-sm">Cargá una planilla CSV para ver las fallas</p>
-        </div>
+        <div class="text-center text-slate-500 mt-10 p-4"><div class="text-4xl mb-2">📋</div><p class="text-sm">Cargá una planilla CSV para ver las fallas</p></div>
       </div>
     </aside>
 
     <main class="map-panel relative view-map" style="flex: 1; min-height: 0; height: 100%;">
       <div id="map" style="height: 100%; width: 100%;"></div>
-      
       <div class="legend-box-fallas glass rounded-lg p-3 shadow-2xl">
         <div class="text-xs font-bold text-white mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Leyenda de Fallas</div>
         <div class="space-y-1.5 text-xs">
@@ -536,16 +422,11 @@
           <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-slate-400"></span><span class="text-slate-200">Otros</span></div>
         </div>
       </div>
-
       <div class="legend-box-situacion glass rounded-lg p-3 shadow-2xl">
         <div class="text-xs font-bold text-white mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Leyenda de Situación</div>
-        <div class="space-y-1.5 text-xs" id="legendSituacionContent">
-          <div class="text-slate-400 text-xs italic">Cargue una planilla</div>
-        </div>
+        <div class="space-y-1.5 text-xs" id="legendSituacionContent"><div class="text-slate-400 text-xs italic">Cargue una planilla</div></div>
       </div>
-      
       <button class="legend-fab" onclick="toggleLegendModal()" title="Ver leyenda">📋</button>
-      
       <div class="legend-modal" id="legendModal">
         <div class="flex items-center justify-between mb-3">
           <div class="text-xs font-bold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Leyenda de Fallas</div>
@@ -564,37 +445,24 @@
         </div>
         <div class="mt-3 pt-3 border-t border-slate-600">
           <div class="text-xs font-bold text-white mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Leyenda de Situación</div>
-          <div class="space-y-1.5 text-xs" id="legendModalSituacion">
-            <div class="text-slate-400 text-xs italic">Cargue una planilla</div>
-          </div>
+          <div class="space-y-1.5 text-xs" id="legendModalSituacion"><div class="text-slate-400 text-xs italic">Cargue una planilla</div></div>
         </div>
       </div>
     </main>
 
     <aside id="detailPanel" class="detail-panel-mobile glass border-l border-slate-700/50 flex flex-col relative z-10 view-detail hidden">
       <div class="p-4 border-b border-slate-700/50 flex items-center justify-between">
-        <h2 class="font-bold text-white flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-blue-500 pulse-dot"></span>
-          Detalle del Asset
-        </h2>
-        <button onclick="closeDetailPanel()" class="text-slate-400 hover:text-white transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+        <h2 class="font-bold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 pulse-dot"></span>Detalle del Asset</h2>
+        <button onclick="closeDetailPanel()" class="text-slate-400 hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
       <div class="flex-1 scroll-y p-4 space-y-4" id="detailContent"></div>
     </aside>
   </div>
 
   <div class="mobile-view-btns">
-    <button class="mobile-view-btn active" onclick="switchView('list')" id="btnViewList">
-      <span class="icon">📋</span>Lista
-    </button>
-    <button class="mobile-view-btn" onclick="switchView('map')" id="btnViewMap">
-      <span class="icon">🗺️</span>Mapa
-    </button>
-    <button class="mobile-view-btn" onclick="switchView('detail')" id="btnViewDetail">
-      <span class="icon">📄</span>Detalle
-    </button>
+    <button class="mobile-view-btn active" onclick="switchView('list')" id="btnViewList"><span class="icon">📋</span>Lista</button>
+    <button class="mobile-view-btn" onclick="switchView('map')" id="btnViewMap"><span class="icon">️</span>Mapa</button>
+    <button class="mobile-view-btn" onclick="switchView('detail')" id="btnViewDetail"><span class="icon">📄</span>Detalle</button>
   </div>
 </div>
 
@@ -612,34 +480,20 @@ function showToast(message, type = 'success') {
 // ================= MOBILE VIEW SWITCHER =================
 function switchView(view) {
   document.body.className = document.body.className.replace(/show-\w+/g, '').trim();
-  if (view !== 'list') {
-    document.body.classList.add('show-' + view);
-  }
+  if (view !== 'list') document.body.classList.add('show-' + view);
   document.querySelectorAll('.mobile-view-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('btnView' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
-  
   if (view === 'map' && map) {
-    setTimeout(() => {
-      map.invalidateSize();
-      if (filteredData && filteredData.length > 0) {
-        renderMarkers(filteredData);
-      }
-    }, 100);
+    setTimeout(() => { map.invalidateSize(); if (filteredData && filteredData.length > 0) renderMarkers(filteredData); }, 100);
   }
 }
 
 // ================= LEGEND MODAL =================
-function toggleLegendModal() {
-  const modal = document.getElementById('legendModal');
-  modal.classList.toggle('show');
-}
-
+function toggleLegendModal() { document.getElementById('legendModal').classList.toggle('show'); }
 document.addEventListener('click', function(e) {
   const modal = document.getElementById('legendModal');
   const fab = document.querySelector('.legend-fab');
-  if (modal && !modal.contains(e.target) && e.target !== fab) {
-    modal.classList.remove('show');
-  }
+  if (modal && !modal.contains(e.target) && e.target !== fab) modal.classList.remove('show');
 });
 
 // ================= USER MANAGEMENT =================
@@ -694,17 +548,11 @@ function logout() { sessionStorage.removeItem('lum_session_user'); location.relo
 function renderUserList() {
   if (currentUserRole !== 'admin') return;
   const listEl = document.getElementById('userList');
-  if (users.length === 0) {
-    listEl.innerHTML = '<div class="text-center text-slate-500 p-4">No hay usuarios registrados</div>';
-    return;
-  }
+  if (users.length === 0) { listEl.innerHTML = '<div class="text-center text-slate-500 p-4">No hay usuarios registrados</div>'; return; }
   listEl.innerHTML = users.map(u => `
     <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
       <div>
-        <div class="text-white font-semibold flex items-center gap-2">
-          👤 ${u.username}
-          ${u.role === 'admin' ? '<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">Admin</span>' : '<span class="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">Usuario</span>'}
-        </div>
+        <div class="text-white font-semibold flex items-center gap-2">👤 ${u.username} ${u.role === 'admin' ? '<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">Admin</span>' : '<span class="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">Usuario</span>'}</div>
         ${u.username === currentLoggedInUser ? '<div class="text-xs text-green-400 mt-1">● Sesión activa (usted)</div>' : ''}
       </div>
       <div class="flex items-center gap-2">
@@ -725,29 +573,18 @@ function openResetModal(username) {
   document.getElementById('resetPasswordModal').classList.remove('hidden');
 }
 
-function closeResetModal() {
-  document.getElementById('resetPasswordModal').classList.add('hidden');
-  resetTargetUsername = null;
-}
+function closeResetModal() { document.getElementById('resetPasswordModal').classList.add('hidden'); resetTargetUsername = null; }
 
 function confirmResetPassword() {
   const newPass = document.getElementById('resetNewPass').value;
   const confirmPass = document.getElementById('resetConfirmPass').value;
   const msg = document.getElementById('resetMessage');
   msg.classList.remove('hidden');
-
   if (!newPass || !confirmPass) { msg.textContent = '⚠️ Complete todos los campos.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass.length < 4) { msg.textContent = '⚠️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass !== confirmPass) { msg.textContent = '❌ Las contraseñas no coinciden.'; msg.className = 'text-sm text-red-400'; return; }
-
   const user = users.find(u => u.username === resetTargetUsername);
-  if (user) {
-    user.password = newPass;
-    saveUsersToStorage();
-    showToast(`✅ Contraseña de "${resetTargetUsername}" reseteada`, 'success');
-    closeResetModal();
-    renderUserList();
-  }
+  if (user) { user.password = newPass; saveUsersToStorage(); showToast(`✅ Contraseña de "${resetTargetUsername}" reseteada`, 'success'); closeResetModal(); renderUserList(); }
 }
 
 function openDeleteModal(username) {
@@ -758,16 +595,13 @@ function openDeleteModal(username) {
   document.getElementById('deleteUserModal').classList.remove('hidden');
 }
 
-function closeDeleteModal() {
-  document.getElementById('deleteUserModal').classList.add('hidden');
-  deleteTargetUsername = null;
-}
+function closeDeleteModal() { document.getElementById('deleteUserModal').classList.add('hidden'); deleteTargetUsername = null; }
 
 function confirmDeleteUser() {
   if (!deleteTargetUsername) return;
   users = users.filter(u => u.username !== deleteTargetUsername);
   saveUsersToStorage();
-  showToast(`🗑️ Usuario "${deleteTargetUsername}" eliminado`, 'success');
+  showToast(`️ Usuario "${deleteTargetUsername}" eliminado`, 'success');
   closeDeleteModal();
   renderUserList();
 }
@@ -778,7 +612,7 @@ function handleAddUser() {
   const password = document.getElementById('newPassword').value;
   const role = document.getElementById('newRole').value;
   if (!username || !password) { showToast('⚠️ Complete todos los campos', 'warning'); return; }
-  if (users.find(u => u.username === username)) { showToast('⚠️ El usuario ya existe', 'warning'); return; }
+  if (users.find(u => u.username === username)) { showToast('️ El usuario ya existe', 'warning'); return; }
   users.push({ username, password, role });
   saveUsersToStorage();
   document.getElementById('newUsername').value = '';
@@ -787,11 +621,7 @@ function handleAddUser() {
   showToast(`✅ Usuario "${username}" agregado`, 'success');
 }
 
-function openAdminModal() { 
-  if (currentUserRole !== 'admin') { showToast('Solo administradores', 'error'); return; } 
-  renderUserList(); 
-  document.getElementById('adminModal').classList.remove('hidden'); 
-}
+function openAdminModal() { if (currentUserRole !== 'admin') { showToast('Solo administradores', 'error'); return; } renderUserList(); document.getElementById('adminModal').classList.remove('hidden'); }
 function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
 
 function openChangePasswordModal() {
@@ -811,15 +641,13 @@ function handleChangeOwnPassword() {
   const confirmPass = document.getElementById('confirmPassInput').value;
   const msg = document.getElementById('changePassMessage');
   msg.classList.remove('hidden');
-
   if (!currentPass || !newPass || !confirmPass) { msg.textContent = '⚠️ Complete todos los campos.'; msg.className = 'text-sm text-yellow-400'; return; }
   const user = users.find(u => u.username === currentLoggedInUser);
   if (!user) { msg.textContent = '❌ Error: usuario no encontrado.'; msg.className = 'text-sm text-red-400'; return; }
   if (user.password !== currentPass) { msg.textContent = '❌ La contraseña actual es incorrecta.'; msg.className = 'text-sm text-red-400'; return; }
   if (newPass.length < 4) { msg.textContent = '⚠️ Mínimo 4 caracteres.'; msg.className = 'text-sm text-yellow-400'; return; }
   if (newPass !== confirmPass) { msg.textContent = '❌ Las contraseñas no coinciden.'; msg.className = 'text-sm text-red-400'; return; }
-  if (newPass === currentPass) { msg.textContent = '⚠️ Debe ser diferente a la actual.'; msg.className = 'text-sm text-yellow-400'; return; }
-
+  if (newPass === currentPass) { msg.textContent = '️ Debe ser diferente a la actual.'; msg.className = 'text-sm text-yellow-400'; return; }
   user.password = newPass;
   saveUsersToStorage();
   msg.textContent = '✅ Contraseña actualizada.';
@@ -833,9 +661,16 @@ let charts = {};
 function openChartsModal() {
   if (filteredData.length === 0) { showToast('Cargue una planilla primero', 'warning'); return; }
   document.getElementById('chartsModal').classList.remove('hidden');
+  populateCuentaSelector();
   setTimeout(() => updateCharts(), 100);
 }
 function closeChartsModal() { document.getElementById('chartsModal').classList.add('hidden'); }
+
+function populateCuentaSelector() {
+  const cuentas = [...new Set(allData.map(d => d['Número de Cuenta']))].filter(c => c && c.trim() !== '' && c.trim() !== '-').sort();
+  const selector = document.getElementById('cuentaSelector');
+  selector.innerHTML = '<option value="all">Todas las cuentas</option>' + cuentas.map(c => `<option value="${c}">${c}</option>`).join('');
+}
 
 function updateCharts() {
   const data = filteredData;
@@ -880,10 +715,7 @@ function updateCharts() {
 
   // 2. Situaciones
   const situacionCounts = {};
-  data.forEach(row => { 
-    const sit = row['Situación'] || 'Sin información';
-    situacionCounts[sit] = (situacionCounts[sit] || 0) + 1; 
-  });
+  data.forEach(row => { const sit = row['Situación'] || 'Sin información'; situacionCounts[sit] = (situacionCounts[sit] || 0) + 1; });
   const situacionLabels = Object.keys(situacionCounts).sort((a, b) => situacionCounts[b] - situacionCounts[a]);
   const situacionValues = situacionLabels.map(l => situacionCounts[l]);
   const situacionColors = situacionLabels.map(s => {
@@ -973,79 +805,315 @@ function updateCharts() {
     options: { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { position: 'top', labels: { color: chartColors.text, font: { size: 11 }, boxWidth: 14 } } }, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: chartColors.text, font: { size: 10 } } }, y: { stacked: true, grid: { color: chartColors.grid }, ticks: { color: chartColors.text }, beginAtZero: true, title: { display: true, text: 'Cantidad de fallas críticas', color: chartColors.text } } } }
   });
 
-  // 7. NUEVO: Top 15 Números de Cuenta con más puntos
-  const cuentaCounts = {};
-  data.forEach(row => {
+  // 7. Sección de Cuentas
+  const cuentaSelectorValue = document.getElementById('cuentaSelector').value;
+  const titleEl = document.getElementById('cuentaChartTitle');
+  const dataSection = document.getElementById('cuentaDataSection');
+  
+  titleEl.innerHTML = '💳 Puntos con número de cuenta';
+  
+  const puntosConCuenta = data.filter(row => {
     const cuenta = (row['Número de Cuenta'] || '').trim();
-    if (!cuenta || cuenta === '-' || cuenta === '') return;
-    cuentaCounts[cuenta] = (cuentaCounts[cuenta] || 0) + 1;
-  });
-  
-  const topCuentas = Object.entries(cuentaCounts).sort((a, b) => b[1] - a[1]).slice(0, 15);
-  const cuentaLabels = topCuentas.map(c => c[0]);
-  const cuentaValues = topCuentas.map(c => c[1]);
-  
-  // Gradiente de colores para las cuentas (de más oscuro a más claro)
-  const cuentaColors = cuentaLabels.map((_, i) => {
-    const colors = [
-      '#f43f5e', '#ec4899', '#a855f7', '#8b5cf6', '#6366f1',
-      '#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6', '#10b981',
-      '#22c55e', '#84cc16', '#eab308', '#f59e0b', '#f97316'
-    ];
-    return colors[i % colors.length];
+    return cuenta && cuenta !== '-' && cuenta !== '';
   });
 
-  charts.cuentas = new Chart(document.getElementById('chartCuentas'), {
-    type: 'bar',
-    data: { 
-      labels: cuentaLabels, 
-      datasets: [{ 
-        label: 'Cantidad de Puntos', 
-        data: cuentaValues, 
-        backgroundColor: cuentaColors.map(c => c + 'cc'), 
-        borderColor: cuentaColors, 
-        borderWidth: 2, 
-        borderRadius: 6 
-      }] 
-    },
-    options: { 
-      ...defaultOptions, 
-      indexAxis: 'y',
-      plugins: { 
-        ...defaultOptions.plugins, 
-        legend: { display: false },
-        tooltip: {
-          ...defaultOptions.plugins.tooltip,
-          callbacks: {
-            title: function(context) {
-              return '💳 Cuenta: ' + context[0].label;
-            },
-            label: function(context) {
-              return '📍 Puntos: ' + context.parsed.x;
-            }
-          }
-        }
-      }, 
-      scales: { 
-        x: { 
-          grid: { color: chartColors.grid }, 
-          ticks: { color: chartColors.text },
-          title: { display: true, text: 'Cantidad de puntos', color: chartColors.text }
-        }, 
-        y: { 
-          grid: { display: false }, 
-          ticks: { 
-            color: chartColors.text, 
-            font: { size: 11, weight: 'bold' },
-            autoSkip: false
-          } 
-        } 
-      } 
-    }
+  if (puntosConCuenta.length === 0) {
+    dataSection.innerHTML = '<div class="text-center text-slate-400 py-8">No hay puntos con número de cuenta</div>';
+    return;
+  }
+
+  let tableHTML = `
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cuenta</th>
+            <th>Municipio</th>
+            <th>Zona</th>
+            <th>Latitud</th>
+            <th>Longitud</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  puntosConCuenta.forEach((row, idx) => {
+    const cuenta = (row['Número de Cuenta'] || '').trim();
+    const localidad = row.localidad || 'Sin Localidad';
+    const zona = row.zona || 'Sin Zona';
+    const lat = row.lat ? row.lat.toFixed(6) : '-';
+    const lng = row.lng ? row.lng.toFixed(6) : '-';
+    const assetId = row['Asset ID'] || '';
+    const btnId = `btn-mapa-${idx}`;
+    
+    tableHTML += `
+      <tr>
+        <td>${idx + 1}</td>
+        <td class="font-mono text-blue-300">${cuenta.substring(0, 20)}</td>
+        <td>${localidad}</td>
+        <td>${zona}</td>
+        <td class="font-mono text-xs">${lat}</td>
+        <td class="font-mono text-xs">${lng}</td>
+        <td>
+          <button id="${btnId}" class="btn-ver-mapa" onclick="verPuntoEnMapa('${assetId}', ${row.lat || 0}, ${row.lng || 0})">
+            📍 Ver
+          </button>
+        </td>
+      </tr>
+    `;
   });
+  
+  tableHTML += `
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-3 text-xs text-slate-400 text-center">Total: ${puntosConCuenta.length} puntos con número de cuenta</div>
+  `;
+  
+  dataSection.innerHTML = tableHTML;
 }
 
-// ================= PDF EXPORT =================
+// ================= FUNCIÓN PARA VER PUNTO EN MAPA =================
+function verPuntoEnMapa(assetId, lat, lng) {
+  if (!lat || !lng || lat === 0 || lng === 0) {
+    showToast('⚠️ Coordenadas no disponibles', 'warning');
+    return;
+  }
+  
+  closeChartsModal();
+  
+  if (window.innerWidth <= 1024) {
+    switchView('map');
+  }
+  
+  setTimeout(() => {
+    if (map) {
+      map.flyTo([lat, lng], 18, { duration: 1.5 });
+      if (markers && markers.length > 0) {
+        const marker = markers.find(m => {
+          const ll = m.getLatLng();
+          return Math.abs(ll.lat - lat) < 0.0001 && Math.abs(ll.lng - lng) < 0.0001;
+        });
+        if (marker) {
+          setTimeout(() => { marker.openPopup(); }, 1500);
+        }
+      }
+    }
+  }, 300);
+  
+  showToast('📍 Mostrando punto en el mapa', 'success');
+}
+
+// ================= EXPORT CHARTS PDF (HIGH QUALITY) =================
+async function exportChartsPDF() {
+  if (filteredData.length === 0) { showToast('No hay datos para exportar', 'warning'); return; }
+  
+  showToast('📄 Generando PDF con gráficos en alta calidad...', 'success');
+  
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    let yPosition = margin;
+
+    // Título
+    pdf.setFillColor(30, 41, 59);
+    pdf.rect(0, 0, pageWidth, 25, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(18);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Análisis de Fallas - ALUMBRADO IMC', margin, 12);
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(`Reporte generado: ${new Date().toLocaleDateString('es-UY')} ${new Date().toLocaleTimeString('es-UY')}`, margin, 20);
+
+    yPosition = 35;
+
+    // Resumen de filtros
+    const filters = [];
+    const locFilter = document.getElementById('localidadFilter').value;
+    const zonaFilter = document.getElementById('zonaFilter').value;
+    const errorFilter = document.getElementById('errorFilter').value;
+    const situacionFilter = document.getElementById('situacionFilter').value;
+    const cuentaFilter = document.getElementById('cuentaFilter').value;
+    if (locFilter !== 'all') filters.push(`Localidad: ${locFilter}`);
+    if (zonaFilter !== 'all') filters.push(`Zona: ${zonaFilter}`);
+    if (errorFilter !== 'all') filters.push(`Tipo: ${errorFilter}`);
+    if (situacionFilter !== 'all') filters.push(`Situación: ${situacionFilter}`);
+    if (cuentaFilter !== 'all') filters.push(`Cuenta: ${cuentaFilter}`);
+    
+    if (filters.length > 0) {
+      pdf.setTextColor(100, 116, 139);
+      pdf.setFontSize(8);
+      pdf.text(`Filtros aplicados: ${filters.join(' | ')}`, margin, yPosition);
+      yPosition += 8;
+    }
+
+    // Estadísticas generales
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'bold');
+    pdf.text(`Total de fallas: ${filteredData.length}`, margin, yPosition);
+    pdf.text(`Localidades: ${new Set(filteredData.map(d => d.localidad)).size}`, margin + 60, yPosition);
+    pdf.text(`Sin Energía: ${filteredData.filter(d => d.categoria.name === 'Sin energía').length}`, margin + 120, yPosition);
+    pdf.text(`OLC Inaccesible: ${filteredData.filter(d => d.categoria.name === 'OLC inaccesible').length}`, margin + 180, yPosition);
+    yPosition += 15;
+
+    // Lista de gráficos a exportar
+    const chartList = [
+      { id: 'chartErrorTypes', title: 'Distribución por Tipo de Falla', width: 120, height: 60 },
+      { id: 'chartSituaciones', title: 'Distribución por Situación', width: 120, height: 60 },
+      { id: 'chartLocalidades', title: 'Top 10 Localidades con más Fallas', width: 120, height: 60 },
+      { id: 'chartZonas', title: 'Fallas por Zona', width: 120, height: 60 },
+      { id: 'chartTimeline', title: 'Evolución de Fallas (Últimos 30 días)', width: 120, height: 60 },
+      { id: 'chartCriticas', title: 'Fallas Críticas por Localidad', width: 120, height: 60 }
+    ];
+
+    // Canvas temporal para alta calidad
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Resolución alta para calidad
+    const scaleFactor = 3;
+    tempCanvas.width = 800 * scaleFactor;
+    tempCanvas.height = 400 * scaleFactor;
+    tempCtx.scale(scaleFactor, scaleFactor);
+
+    for (let i = 0; i < chartList.length; i++) {
+      const chartInfo = chartList[i];
+      const chart = charts[chartInfo.id.replace('chart', '').charAt(0).toLowerCase() + chartInfo.id.replace('chart', '').slice(1)];
+      if (!chart) continue;
+      
+      // Re-renderizar en canvas temporal para alta calidad
+      const originalCanvas = chart.canvas;
+      const originalWidth = originalCanvas.width;
+      const originalHeight = originalCanvas.height;
+      
+      // Guardar estado original
+      const originalData = chart.toBase64Image();
+      
+      // Crear gráfico temporal de alta resolución
+      const tempChartCanvas = document.createElement('canvas');
+      tempChartCanvas.width = originalWidth * 2;
+      tempChartCanvas.height = originalHeight * 2;
+      tempChartCanvas.style.width = originalWidth + 'px';
+      tempChartCanvas.style.height = originalHeight + 'px';
+      
+      const tempChart = new Chart(tempChartCanvas, {
+        type: chart.config.type,
+        data: JSON.parse(JSON.stringify(chart.config.data)),
+        options: {
+          ...JSON.parse(JSON.stringify(chart.config.options)),
+          animation: false,
+          responsive: false,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: chart.config.options?.plugins?.legend?.display !== false,
+              labels: { color: '#ffffff', font: { size: 14 }, boxWidth: 16, padding: 12 }
+            },
+            tooltip: { enabled: false }
+          },
+          scales: chart.config.options?.scales ? JSON.parse(JSON.stringify(chart.config.options.scales)) : undefined
+        }
+      });
+
+      // Forzar renderizado
+      tempChart.render();
+      
+      // Obtener imagen de alta calidad
+      const highQualityImg = tempChartCanvas.toDataURL('image/png', 1.0);
+      
+      // Limpiar
+      tempChart.destroy();
+      
+      // Verificar si necesitamos nueva página
+      if (yPosition + 75 > pageHeight - 10) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+      
+      // Título del gráfico
+      pdf.setTextColor(30, 41, 59);
+      pdf.setFontSize(12);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(chartInfo.title, margin, yPosition);
+      yPosition += 5;
+      
+      // Agregar imagen del gráfico con dimensiones apropiadas
+      pdf.addImage(highQualityImg, 'PNG', margin, yPosition, chartInfo.width, chartInfo.height);
+      yPosition += chartInfo.height + 10;
+    }
+
+    // Tabla de cuentas con número de cuenta
+    const cuentaCounts = {};
+    filteredData.forEach(row => {
+      const cuenta = (row['Número de Cuenta'] || '').trim();
+      if (!cuenta || cuenta === '-' || cuenta === '') return;
+      if (!cuentaCounts[cuenta]) {
+        cuentaCounts[cuenta] = { count: 0, localidades: new Set(), zonas: new Set() };
+      }
+      cuentaCounts[cuenta].count++;
+      cuentaCounts[cuenta].localidades.add(row.localidad || 'Sin Localidad');
+      cuentaCounts[cuenta].zonas.add(row.zona || 'Sin Zona');
+    });
+    
+    const topCuentas = Object.entries(cuentaCounts).sort((a, b) => b[1].count - a[1].count).slice(0, 15);
+    
+    if (topCuentas.length > 0) {
+      if (yPosition + 30 > pageHeight - 10) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+      
+      pdf.setTextColor(30, 41, 59);
+      pdf.setFontSize(12);
+      pdf.setFont(undefined, 'bold');
+      pdf.text('Puntos con número de cuenta (Top 15)', margin, yPosition);
+      yPosition += 8;
+
+      pdf.setFontSize(7);
+      pdf.setFont(undefined, 'bold');
+      const colWidths = [10, 40, 20, 80, 80];
+      const headers = ['#', 'Cuenta', 'Cantidad', 'Municipios/Localidades', 'Zonas'];
+      let xPos = margin;
+      headers.forEach((h, i) => { pdf.text(h, xPos + 1, yPosition + 4); xPos += colWidths[i]; });
+      yPosition += 6;
+      
+      pdf.setFont(undefined, 'normal');
+      topCuentas.forEach((cuenta, idx) => {
+        const [cuentaNum, info] = cuenta;
+        const localidades = Array.from(info.localidades).join(', ');
+        const zonas = Array.from(info.zonas).join(', ');
+        
+        if (yPosition > pageHeight - 10) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+        
+        xPos = margin;
+        pdf.text(String(idx + 1), xPos + 1, yPosition + 4); xPos += colWidths[0];
+        pdf.text(cuentaNum.substring(0, 25), xPos + 1, yPosition + 4); xPos += colWidths[1];
+        pdf.text(String(info.count), xPos + 1, yPosition + 4); xPos += colWidths[2];
+        pdf.text(localidades.substring(0, 50), xPos + 1, yPosition + 4); xPos += colWidths[3];
+        pdf.text(zonas.substring(0, 50), xPos + 1, yPosition + 4);
+        yPosition += 6;
+      });
+    }
+
+    pdf.save(`Analisis_Fallas_ALUMBRADO_IMC_${new Date().toISOString().split('T')[0]}.pdf`);
+    showToast('✅ PDF exportado exitosamente con gráficos en alta calidad', 'success');
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    showToast('❌ Error al generar el PDF: ' + error.message, 'error');
+  }
+}
+
+// ================= PDF EXPORT (datos completos) =================
 async function exportToPDF() {
   if (filteredData.length === 0) { showToast('No hay datos para exportar', 'warning'); return; }
   const btn = event.target.closest('button');
@@ -1066,7 +1134,7 @@ async function exportToPDF() {
     pdf.rect(0, 0, pageWidth, 25, 'F');
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(18); pdf.setFont(undefined, 'bold');
-    pdf.text('Fallas de Luminarias - ALUMBRADO IMC', margin, 12);
+    pdf.text('Fallas de Luminarias ALUMBRADO IMC', margin, 12);
     pdf.setFontSize(9); pdf.setFont(undefined, 'normal');
     pdf.text(`Reporte: ${now.toLocaleDateString('es-UY')} ${now.toLocaleTimeString('es-UY')} | Usuario: ${currentLoggedInUser || 'admin'}`, margin, 20);
 
@@ -1125,7 +1193,7 @@ async function exportToPDF() {
         pdf.addPage(); currentPage++; yPosition = margin; rowCount = 0;
         pdf.setFillColor(30, 41, 59); pdf.rect(0, 0, pageWidth, 15, 'F');
         pdf.setTextColor(255, 255, 255); pdf.setFontSize(10); pdf.setFont(undefined, 'bold');
-        pdf.text('Fallas de Luminarias - ALUMBRADO IMC', margin, 10);
+        pdf.text('Fallas de Luminarias ALUMBRADO IMC', margin, 10);
         yPosition = 22;
         pdf.setFillColor(30, 41, 59); pdf.rect(margin, yPosition, pageWidth - margin * 2, 8, 'F');
         pdf.setTextColor(255, 255, 255); pdf.setFontSize(6); pdf.setFont(undefined, 'bold');
@@ -1153,7 +1221,7 @@ async function exportToPDF() {
     });
     pdf.setTextColor(148, 163, 184); pdf.setFontSize(7);
     pdf.text(`Página ${currentPage} | Total: ${filteredData.length} registros | ALUMBRADO IMC`, pageWidth / 2, pageHeight - 8, { align: 'center' });
-    pdf.save(`Fallas_Luminarias_IMC_${now.toISOString().split('T')[0]}.pdf`);
+    pdf.save(`Fallas_Luminarias_ALUMBRADO_IMC_${now.toISOString().split('T')[0]}.pdf`);
   } catch (error) {
     console.error('Error generating PDF:', error);
     showToast('❌ Error al generar el PDF', 'error');
@@ -1210,19 +1278,9 @@ function getSituacionColor(sit) {
 
 function updateSituacionLegend(data) {
   const situacionCounts = {};
-  data.forEach(row => { 
-    const sit = row['Situación'] || 'Sin información';
-    situacionCounts[sit] = (situacionCounts[sit] || 0) + 1; 
-  });
+  data.forEach(row => { const sit = row['Situación'] || 'Sin información'; situacionCounts[sit] = (situacionCounts[sit] || 0) + 1; });
   const situaciones = Object.keys(situacionCounts).sort((a, b) => situacionCounts[b] - situacionCounts[a]);
-  
-  const html = situaciones.map(s => `
-    <div class="flex items-center gap-2">
-      <span class="w-3 h-3 rounded-full" style="background-color: ${getSituacionColor(s)}"></span>
-      <span class="text-slate-200 truncate flex-1" title="${s} (${situacionCounts[s]})">${s} <span class="text-slate-500">(${situacionCounts[s]})</span></span>
-    </div>
-  `).join('');
-  
+  const html = situaciones.map(s => `<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full" style="background-color: ${getSituacionColor(s)}"></span><span class="text-slate-200 truncate flex-1" title="${s} (${situacionCounts[s]})">${s} <span class="text-slate-500">(${situacionCounts[s]})</span></span></div>`).join('');
   document.getElementById('legendSituacionContent').innerHTML = html || '<div class="text-slate-400 text-xs italic">Sin situaciones</div>';
   document.getElementById('legendModalSituacion').innerHTML = html || '<div class="text-slate-400 text-xs italic">Sin situaciones</div>';
 }
@@ -1230,11 +1288,9 @@ function updateSituacionLegend(data) {
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   const result = [];
-  
   const firstLine = lines[0].toLowerCase();
   const hasHeader = firstLine.includes('created') && firstLine.includes('asset');
   const startIndex = hasHeader ? 1 : 0;
-  
   for (let i = startIndex; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
     const row = [];
@@ -1245,22 +1301,13 @@ function parseCSV(text) {
       else current += char;
     }
     row.push(current.trim());
-    
     if (row.length >= 12) {
       const obj = {
-        'Created': row[0] || '',
-        'Asset ID': row[1] || '',
-        'Mensaje de error': row[2] || '',
-        'Fecha creación': row[3] || '',
-        'Fecha modificación': row[4] || '',
-        'Estado': row[5] || '',
-        'External ID': row[6] || '',
-        'Latitud': (row[7] || '').replace(',', '.'),
-        'Longitud': (row[8] || '').replace(',', '.'),
-        'Fecha programada': row[9] || '',
-        'Localidad': row[10] || '',
-        'Zona': row[11] || '',
-        'Situación': row[12] || '',
+        'Created': row[0] || '', 'Asset ID': row[1] || '', 'Mensaje de error': row[2] || '',
+        'Fecha creación': row[3] || '', 'Fecha modificación': row[4] || '', 'Estado': row[5] || '',
+        'External ID': row[6] || '', 'Latitud': (row[7] || '').replace(',', '.'),
+        'Longitud': (row[8] || '').replace(',', '.'), 'Fecha programada': row[9] || '',
+        'Localidad': row[10] || '', 'Zona': row[11] || '', 'Situación': row[12] || '',
         'Número de Cuenta': row[13] || ''
       };
       obj.lat = parseFloat(obj.Latitud);
@@ -1276,32 +1323,12 @@ function parseCSV(text) {
 
 function initMap() {
   const mapContainer = document.getElementById('map');
-  if (!mapContainer || mapContainer.offsetWidth === 0 || mapContainer.offsetHeight === 0) {
-    setTimeout(initMap, 200);
-    return;
-  }
-  
-  if (mapInitialized) {
-    map.invalidateSize();
-    return;
-  }
-  
-  map = L.map('map', { 
-    zoomControl: true,
-    center: [-34.75, -56.0],
-    zoom: 10
-  });
-  
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-    attribution: '© OpenStreetMap', 
-    maxZoom: 19 
-  }).addTo(map);
-  
+  if (!mapContainer || mapContainer.offsetWidth === 0 || mapContainer.offsetHeight === 0) { setTimeout(initMap, 200); return; }
+  if (mapInitialized) { map.invalidateSize(); return; }
+  map = L.map('map', { zoomControl: true, center: [-34.75, -56.0], zoom: 10 });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map);
   mapInitialized = true;
-  
-  setTimeout(() => {
-    map.invalidateSize();
-  }, 100);
+  setTimeout(() => { map.invalidateSize(); }, 100);
 }
 
 function renderMarkers(data) {
@@ -1321,9 +1348,7 @@ function renderMarkers(data) {
     markers.push(marker);
     bounds.push([row.lat, row.lng]);
   });
-  if (bounds.length > 0) {
-    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-  }
+  if (bounds.length > 0) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
 }
 
 function populateFilters() {
@@ -1332,7 +1357,6 @@ function populateFilters() {
   const errors = [...new Set(allData.map(d => d.categoria.name))].sort();
   const situaciones = [...new Set(allData.map(d => d['Situación']))].filter(s => s && s.trim() !== '').sort();
   const cuentas = [...new Set(allData.map(d => d['Número de Cuenta']))].filter(c => c && c.trim() !== '' && c.trim() !== '-').sort();
-  
   document.getElementById('localidadFilter').innerHTML = '<option value="all">Todas las localidades</option>' + localidades.map(l => `<option value="${l}">${l}</option>`).join('');
   document.getElementById('zonaFilter').innerHTML = '<option value="all">Todas las zonas</option>' + zonas.map(z => `<option value="${z}">${z}</option>`).join('');
   document.getElementById('errorFilter').innerHTML = '<option value="all">Todos los tipos</option>' + errors.map(e => `<option value="${e}">${e}</option>`).join('');
@@ -1361,7 +1385,7 @@ function renderList() {
       </div>
       <div class="text-sm font-semibold text-white mb-1 truncate">${row['External ID']}</div>
       <div class="text-xs text-slate-300 line-clamp-2">${row['Mensaje de error']}</div>
-      ${situacion ? `<div class="text-xs text-amber-400 mt-1.5 italic flex items-center gap-1"><span>📌</span><span class="truncate">${situacion}</span></div>` : ''}
+      ${situacion ? `<div class="text-xs text-amber-400 mt-1.5 italic flex items-center gap-1"><span></span><span class="truncate">${situacion}</span></div>` : ''}
       ${cuenta && cuenta !== '-' ? `<div class="text-xs text-rose-400 mt-1 flex items-center gap-1"><span>💳</span><span class="font-semibold">Cuenta: ${cuenta}</span></div>` : ''}
       <div class="flex items-center gap-2 mt-2"><span class="text-xs text-slate-400">Zona: <span class="text-slate-200 font-semibold">${row.zona}</span></span></div>
     </div>
@@ -1392,20 +1416,10 @@ function selectAsset(row) {
           <div><div class="text-xs text-slate-400">Localidad</div><div class="text-sm font-semibold text-white">${row.localidad}</div></div>
           <div><div class="text-xs text-slate-400">Zona</div><div class="text-sm font-semibold text-white">${row.zona}</div></div>
         </div>
-        ${cuenta && cuenta !== '-' ? `
-        <div class="bg-rose-500/10 border border-rose-500/30 rounded-lg p-3">
-          <div class="text-xs text-rose-300 mb-1">💳 Número de Cuenta</div>
-          <div class="text-lg font-bold text-rose-400">${cuenta}</div>
-        </div>
-        ` : ''}
+        ${cuenta && cuenta !== '-' ? `<div class="bg-rose-500/10 border border-rose-500/30 rounded-lg p-3"><div class="text-xs text-rose-300 mb-1">💳 Número de Cuenta</div><div class="text-lg font-bold text-rose-400">${cuenta}</div></div>` : ''}
       </div>
       <div class="glass rounded-lg p-4"><div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Mensaje de Error</div><div class="text-sm text-slate-200 leading-relaxed">${row['Mensaje de error']}</div></div>
-      ${situacion ? `
-      <div class="glass rounded-lg p-4 border-l-4 border-amber-500">
-        <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">📌 Situación</div>
-        <div class="text-sm text-slate-200 leading-relaxed">${situacion}</div>
-      </div>
-      ` : ''}
+      ${situacion ? `<div class="glass rounded-lg p-4 border-l-4 border-amber-500"><div class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">📌 Situación</div><div class="text-sm text-slate-200 leading-relaxed">${situacion}</div></div>` : ''}
       <div class="glass rounded-lg p-4">
         <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Ubicación</div>
         <div class="grid grid-cols-2 gap-3 text-sm">
@@ -1426,26 +1440,19 @@ function selectAsset(row) {
     </div>
   `;
   renderList();
-  if (window.innerWidth <= 1024) {
-    switchView('detail');
-  }
+  if (window.innerWidth <= 1024) switchView('detail');
 }
 
 function closeDetailPanel() { 
   document.getElementById('detailPanel').classList.add('hidden'); 
   currentSelected = null; 
   renderList();
-  if (window.innerWidth <= 1024) {
-    switchView('list');
-  }
+  if (window.innerWidth <= 1024) switchView('list');
 }
+
 function flyToAsset(lat, lng) { 
-  if (map) {
-    map.flyTo([lat, lng], 16, { duration: 1.5 });
-  }
-  if (window.innerWidth <= 1024) {
-    switchView('map');
-  }
+  if (map) map.flyTo([lat, lng], 16, { duration: 1.5 });
+  if (window.innerWidth <= 1024) switchView('map');
 }
 
 function applyFilters() {
@@ -1504,9 +1511,7 @@ window.onload = function() {
     document.getElementById('mainContent').classList.remove('hidden');
     document.getElementById('headerUser').textContent = currentLoggedInUser + (currentUserRole === 'admin' ? ' (Admin)' : '');
     updateAdminButtonVisibility();
-    setTimeout(() => {
-      initMap();
-    }, 200);
+    setTimeout(() => { initMap(); }, 200);
   }
 };
 </script>
